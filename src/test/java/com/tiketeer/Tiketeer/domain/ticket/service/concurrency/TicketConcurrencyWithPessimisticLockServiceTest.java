@@ -34,7 +34,7 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @Import({TestHelper.class})
 class TicketConcurrencyWithPessimisticLockServiceTest {
 	@Autowired
-	private TicketConcurrencyWithPessimisticLockService service;
+	private TicketPessimisticLockConcurrencyService service;
 
 	@Autowired
 	private TestHelper testHelper;
@@ -119,10 +119,10 @@ class TicketConcurrencyWithPessimisticLockServiceTest {
 	@TestConfiguration
 	static class Config {
 		@Bean
-		public TicketConcurrencyWithPessimisticLockService ticketNonConcurrencyService(
+		public TicketPessimisticLockConcurrencyService ticketNonConcurrencyService(
 			TicketRepository ticketRepository,
 			PurchaseCrudService purchaseCrudService) {
-			return new TicketConcurrencyWithPessimisticLockService(ticketRepository, purchaseCrudService);
+			return new TicketPessimisticLockConcurrencyService(ticketRepository, purchaseCrudService);
 		}
 	}
 }

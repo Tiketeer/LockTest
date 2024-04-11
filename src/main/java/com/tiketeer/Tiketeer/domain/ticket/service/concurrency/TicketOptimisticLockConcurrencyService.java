@@ -7,16 +7,11 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Limit;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
 
 import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Service
-@Slf4j
 public class TicketOptimisticLockConcurrencyService implements TicketConcurrencyService {
 
 	private final TicketRepository ticketRepository;

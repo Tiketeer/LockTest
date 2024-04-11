@@ -65,6 +65,7 @@ public class TicketingControllerTest {
 		// given
 		var now = LocalDateTime.now();
 		var email = "test@test.com";
+		testHelper.createMember(email);
 		var req = PostTicketingRequestDto.builder()
 			.title("음악회")
 			.description("설명")

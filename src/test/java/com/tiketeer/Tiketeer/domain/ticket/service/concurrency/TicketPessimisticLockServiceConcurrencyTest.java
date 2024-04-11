@@ -32,7 +32,7 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @SpringBootTest
 @Import({TestHelper.class})
-class TicketConcurrencyWithPessimisticLockServiceTest {
+class TicketPessimisticLockServiceConcurrencyTest {
 	@Autowired
 	private TicketPessimisticLockConcurrencyService service;
 
@@ -70,21 +70,21 @@ class TicketConcurrencyWithPessimisticLockServiceTest {
 	void assignPurchaseToTicketSuccess() {
 		// given
 		Member seller = testHelper.createMember("seller@test.com");
-		Member buyer = memberRepository.findByEmail("buyer@test.com").orElseThrow();
+		Member buyer = testHelper.createMember("buyer@test.com");
 
-		Ticketing tickeing = createTickeing(seller);
+		Ticketing ticketing = createTicketing(seller);
 
 		int stock = 10;
-		ticketingStockService.createStock(tickeing.getId(), stock);
+		ticketingStockService.createStock(ticketing.getId(), stock);
 
 		Purchase purchase = purchaseRepository.save(new Purchase(buyer));
 
 		// when
-		service.assignPurchaseToTicket(tickeing.getId(), purchase.getId(), 10);
+		service.assignPurchaseToTicket(ticketing.getId(), purchase.getId(), 10);
 
 		// then
 		List<Ticket> tickets = ticketRepository.findByTicketingIdAndPurchaseIsNull(
-			tickeing.getId());
+			ticketing.getId());
 		assertThat(tickets.size()).isEqualTo(0);
 	}
 
@@ -93,21 +93,21 @@ class TicketConcurrencyWithPessimisticLockServiceTest {
 	@Transactional
 	void assignPurchaseToTicketFailByNotEnoughTicket() {
 		Member seller = testHelper.createMember("seller@test.com");
-		Member buyer = memberRepository.findByEmail("buyer@test.com").orElseThrow();
-
-		Ticketing tickeing = createTickeing(seller);
+		Member buyer = testHelper.createMember("buyer@test.com");
+		
+		Ticketing ticketing = createTicketing(seller);
 
 		int stock = 1;
-		ticketingStockService.createStock(tickeing.getId(), stock);
+		ticketingStockService.createStock(ticketing.getId(), stock);
 
 		Purchase purchase = purchaseRepository.save(new Purchase(buyer));
 
-		Assertions.assertThatThrownBy(() -> service.assignPurchaseToTicket(tickeing.getId(), purchase.getId(), 10))
+		Assertions.assertThatThrownBy(() -> service.assignPurchaseToTicket(ticketing.getId(), purchase.getId(), 10))
 			.isInstanceOf(NotEnoughTicketException.class);
 
 	}
 
-	private Ticketing createTickeing(Member seller) {
+	private Ticketing createTicketing(Member seller) {
 		Ticketing ticketing = new Ticketing(10000, seller, "", "asdf", "asdfasdf", LocalDateTime.now().plusMonths(20),
 			"", 500,
 			LocalDateTime.now(),

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,7 +23,6 @@ public class TestHelper {
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
-	private final PasswordEncoder passwordEncoder;
 	private final ObjectMapper objectMapper;
 
 	@Autowired
@@ -33,14 +31,12 @@ public class TestHelper {
 		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
-		PasswordEncoder passwordEncoder,
 		ObjectMapper objectMapper
 	) {
 		this.memberRepository = memberRepository;
 		this.purchaseRepository = purchaseRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
-		this.passwordEncoder = passwordEncoder;
 		this.objectMapper = objectMapper;
 	}
 
@@ -77,7 +73,7 @@ public class TestHelper {
 	public Member createMember(String email, String password, long point) {
 		return memberRepository.save(Member.builder()
 			.email(email)
-			.password(passwordEncoder.encode(password))
+			.password(password)
 			.point(point)
 			.build());
 	}

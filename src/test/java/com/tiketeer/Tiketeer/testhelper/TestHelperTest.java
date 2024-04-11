@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,8 +37,6 @@ public class TestHelperTest {
 	private TicketRepository ticketRepository;
 	@Autowired
 	private TicketingRepository ticketingRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@AfterEach
 	void clearTable() {
@@ -115,7 +112,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat("1q2w3e4r!!").isEqualTo(member.getPassword());
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -138,7 +135,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(password).isEqualTo(member.getPassword());
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -161,7 +158,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(password).isEqualTo(member.getPassword());
 		assertThat(member.getPoint()).isEqualTo(10);
 	}
 
@@ -184,7 +181,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(password).isEqualTo(member.getPassword());
 		assertThat(member.getPoint()).isEqualTo(10);
 	}
 

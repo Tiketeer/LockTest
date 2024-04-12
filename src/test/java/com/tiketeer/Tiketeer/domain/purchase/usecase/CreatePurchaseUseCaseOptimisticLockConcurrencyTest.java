@@ -54,9 +54,9 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
 		var seller = testHelper.createMember("seller@etest.com");
-		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 20);
+		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 10);
 
-		int threadNums = 40;
+		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
 		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);

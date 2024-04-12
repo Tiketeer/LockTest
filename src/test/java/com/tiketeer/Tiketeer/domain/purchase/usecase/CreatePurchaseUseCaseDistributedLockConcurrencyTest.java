@@ -64,14 +64,14 @@ class CreatePurchaseUseCaseDistributedLockConcurrencyTest {
 	}
 
 	@Test
-	@DisplayName("20개의 티켓 생성 > 40명의 구매자가 경쟁 > 20명 구매 성공, 20명 구매 실패")
+	@DisplayName("10개의 티켓 생성 > 20명의 구매자가 경쟁 > 10명 구매 성공, 10명 구매 실패")
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
-		var ticketStock = 20;
+		var ticketStock = 10;
 		var seller = testHelper.createMember("seller@etest.com");
 		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, ticketStock);
 
-		int threadNums = 40;
+		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
 		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);

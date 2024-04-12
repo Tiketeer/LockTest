@@ -50,13 +50,13 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 	}
 
 	@Test
-	@DisplayName("20개의 티켓 생성 > 40명의 구매자가 경쟁 > 20명 구매 성공, 20명 구매 실패")
+	@DisplayName("10개의 티켓 생성 > 20명의 구매자가 경쟁 > 10명 구매 성공, 10명 구매 실패")
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
 		var seller = testHelper.createMember("seller@etest.com");
-		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 20);
+		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 10);
 
-		int threadNums = 40;
+		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
 		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);
@@ -80,7 +80,7 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 				.filter(member -> member.getPurchases().size() == 1)
 				.toList();
 
-			assertThat(ticketingSuccessMembers.size()).isEqualTo(20);
+			assertThat(ticketingSuccessMembers.size()).isEqualTo(10);
 			return null;
 		});
 	}

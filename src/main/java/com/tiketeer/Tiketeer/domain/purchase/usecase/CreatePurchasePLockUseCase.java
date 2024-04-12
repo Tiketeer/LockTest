@@ -13,30 +13,27 @@ import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseResultDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 
 @Service
-public class CreatePurchasePessimisticLockUseCase implements CreatePurchaseUseCase {
+public class CreatePurchasePLockUseCase {
 
-	protected final PurchaseRepository purchaseRepository;
-	protected final TicketingService ticketingService;
-	protected final MemberPointService memberPointService;
-	protected final MemberCrudService memberCrudService;
-	protected final TicketConcurrencyService ticketConcurrencyService;
+	private final PurchaseRepository purchaseRepository;
+	private final TicketingService ticketingService;
+	private final MemberPointService memberPointService;
+	private final MemberCrudService memberCrudService;
 	private final TicketRepository ticketRepository;
 	private final PurchaseCrudService purchaseCrudService;
 
 	@Autowired
-	public CreatePurchasePessimisticLockUseCase(
+	public CreatePurchasePLockUseCase(
 		PurchaseRepository purchaseRepository,
 		TicketingService ticketingService,
 		MemberPointService memberPointService,
 		MemberCrudService memberCrudService,
-		TicketConcurrencyService ticketConcurrencyService,
 		TicketRepository ticketRepository,
 		PurchaseCrudService purchaseCrudService
 	) {
@@ -44,13 +41,12 @@ public class CreatePurchasePessimisticLockUseCase implements CreatePurchaseUseCa
 		this.ticketingService = ticketingService;
 		this.memberPointService = memberPointService;
 		this.memberCrudService = memberCrudService;
-		this.ticketConcurrencyService = ticketConcurrencyService;
 		this.ticketRepository = ticketRepository;
 		this.purchaseCrudService = purchaseCrudService;
 	}
 
 	@Transactional
-	public CreatePurchaseResultDto createPurchase(CreatePurchaseCommandDto command) {
+	public CreatePurchaseResultDto createPurchase(CreatePurchasePLockCommandDto command) {
 		var ticketingId = command.getTicketingId();
 		var count = command.getCount();
 

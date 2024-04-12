@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.exception.NotEnoughPointException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.TicketingTestHelper;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
@@ -29,7 +29,7 @@ public class CreatePurchaseUseCaseTest {
 	@Autowired
 	private TicketingTestHelper ticketingTestHelper;
 	@Autowired
-	private CreatePurchaseUseCaseImpl createPurchaseUseCase;
+	private CreatePurchaseOLockUseCase createPurchaseUseCase;
 	@Autowired
 	private TicketRepository ticketRepository;
 	@Autowired
@@ -58,7 +58,7 @@ public class CreatePurchaseUseCaseTest {
 		var ticketing = ticketingTestHelper.createTicketing(member.getId(), 0, 3000, 5);
 
 		var purchaseCount = 3;
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
+		var createPurchaseCommand = CreatePurchasePLockCommandDto.builder()
 			.memberEmail(mockEmail)
 			.ticketingId(ticketing.getId())
 			.count(purchaseCount)
@@ -82,7 +82,7 @@ public class CreatePurchaseUseCaseTest {
 		// given
 		var mockEmail = "test1@test.com";
 
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
+		var createPurchaseCommand = CreatePurchasePLockCommandDto.builder()
 			.memberEmail(mockEmail)
 			.ticketingId(UUID.randomUUID())
 			.count(1)
@@ -107,7 +107,7 @@ public class CreatePurchaseUseCaseTest {
 		var buyerEmail = "test2@test.com";
 		var buyer = testHelper.createMember(buyerEmail);
 		buyer.setPoint(10000);
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
+		var createPurchaseCommand = CreatePurchasePLockCommandDto.builder()
 			.memberEmail(buyerEmail)
 			.ticketingId(ticketing.getId())
 			.count(5)
@@ -132,7 +132,7 @@ public class CreatePurchaseUseCaseTest {
 		var buyer = testHelper.createMember(buyerEmail);
 		buyer.setPoint(5000);
 
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
+		var createPurchaseCommand = CreatePurchasePLockCommandDto.builder()
 			.memberEmail(buyerEmail)
 			.ticketingId(ticketing.getId())
 			.count(3)

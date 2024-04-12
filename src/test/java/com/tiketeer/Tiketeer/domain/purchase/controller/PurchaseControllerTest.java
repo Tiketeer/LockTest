@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.domain.purchase.PurchaseTestHelper;
-import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseRequestDto;
+import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchasePLockRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseResponseDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
@@ -64,7 +64,7 @@ public class PurchaseControllerTest {
 		var buyerEmail = "test2@test.com";
 		var buyer = testHelper.createMember(buyerEmail, 100000);
 		var buyCnt = 2;
-		var req = PostPurchaseRequestDto.builder()
+		var req = PostPurchasePLockRequestDto.builder()
 			.ticketingId(ticketing.getId())
 			.email(buyerEmail)
 			.count(buyCnt)

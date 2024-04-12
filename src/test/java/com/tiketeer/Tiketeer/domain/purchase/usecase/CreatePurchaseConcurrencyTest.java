@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
@@ -20,15 +19,19 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @TestComponent
 public class CreatePurchaseConcurrencyTest {
 	@Autowired
-	private CreatePurchaseUseCase createPurchaseUseCase;
-	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired
 	private TicketingStockService ticketingStockService;
 	@Autowired
 	private TestHelper testHelper;
 
-	public void makeConcurrency(int threadNums, List<Member> buyers, Ticketing ticketing) throws InterruptedException {
+	interface C {
+		public void createPurchase(String buyerEmail);
+	}
+
+	public void makeConcurrency(int threadNums, List<Member> buyers, Ticketing ticketing, C c
+	) throws
+		InterruptedException {
 		ExecutorService executorService = Executors.newFixedThreadPool(threadNums);
 		CountDownLatch startLatch = new CountDownLatch(1);
 		CountDownLatch endLatch = new CountDownLatch(threadNums);
@@ -38,11 +41,7 @@ public class CreatePurchaseConcurrencyTest {
 			executorService.submit(() -> {
 				try {
 					startLatch.await();
-					createPurchaseUseCase.createPurchase(CreatePurchaseCommandDto.builder()
-						.ticketingId(ticketing.getId())
-						.memberEmail(buyers.get(buyerIdx).getEmail())
-						.count(1)
-						.build());
+					c.createPurchase(buyers.get(buyerIdx).getEmail());
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				} finally {

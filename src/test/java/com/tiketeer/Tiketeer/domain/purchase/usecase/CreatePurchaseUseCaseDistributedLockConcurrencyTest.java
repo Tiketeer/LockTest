@@ -111,7 +111,7 @@ class CreatePurchaseUseCaseDistributedLockConcurrencyTest {
 		}
 
 		@Bean
-		public CreatePurchaseUseCase createPurchaseUseCase(PurchaseRepository purchaseRepository,
+		public CreatePurchaseUseCaseImpl createPurchaseUseCase(PurchaseRepository purchaseRepository,
 			TicketingService ticketingService,
 			MemberPointService memberPointService,
 			MemberCrudService memberCrudService,

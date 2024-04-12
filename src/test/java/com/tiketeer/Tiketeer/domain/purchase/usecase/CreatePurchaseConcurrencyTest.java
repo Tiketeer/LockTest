@@ -20,7 +20,7 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @TestComponent
 public class CreatePurchaseConcurrencyTest {
 	@Autowired
-	private CreatePurchaseUseCase createPurchaseUseCase;
+	private CreatePurchaseUseCaseImpl createPurchaseUseCase;
 	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired

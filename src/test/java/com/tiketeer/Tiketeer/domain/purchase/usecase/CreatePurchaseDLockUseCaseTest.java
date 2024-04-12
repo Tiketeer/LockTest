@@ -10,48 +10,33 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import com.tiketeer.Tiketeer.configuration.EmbeddedRedisConfig;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.MemberCrudService;
-import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
-import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
-import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseDLockCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketNonConcurrencyService;
-import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
-@Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class, EmbeddedRedisConfig.class})
+@Import({TestHelper.class, CreatePurchaseConcurrencyTestHelper.class, Transaction.class, EmbeddedRedisConfig.class})
 @SpringBootTest
-class CreatePurchaseUseCaseDistributedLockConcurrencyTest {
+class CreatePurchaseDLockUseCaseTest {
 
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
 	private TicketRepository ticketRepository;
 	@Autowired
-	private TicketingRepository ticketingRepository;
-	@Autowired
-	private TicketingStockService ticketingStockService;
-	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
-	private CreatePurchaseConcurrencyTest createPurchaseConcurrencyTest;
+	private CreatePurchaseConcurrencyTestHelper createPurchaseConcurrencyTest;
 	@Autowired
 	private Transaction transaction;
 	@Autowired
-	private RedissonClient redissonClient;
+	private CreatePurchaseDLockUseCase createPurchaseDistributedLockUseCase;
 
 	@BeforeEach
 	void initTable() {
@@ -74,7 +59,15 @@ class CreatePurchaseUseCaseDistributedLockConcurrencyTest {
 		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
-		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);
+		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing,
+			(email) -> createPurchaseDistributedLockUseCase.createPurchase(
+				CreatePurchaseDLockCommandDto.builder()
+					.ticketingId(ticketing.getId())
+					.memberEmail(email)
+					.count(1)
+					.waitTime(10L)
+					.leaseTime(3L)
+					.build()));
 
 		//then
 		transaction.invoke(() -> {
@@ -100,25 +93,5 @@ class CreatePurchaseUseCaseDistributedLockConcurrencyTest {
 			assertThat(ticketingSuccessMembers.size()).isEqualTo(ticketStock);
 			return null;
 		});
-	}
-
-	@TestConfiguration
-	static class CreatePurchaseUseCaseTestConfiguration {
-		@Bean
-		public TicketConcurrencyService ticketConcurrencyService(
-			TicketRepository ticketRepository, PurchaseCrudService purchaseCrudService) {
-			return new TicketNonConcurrencyService(ticketRepository, purchaseCrudService);
-		}
-
-		@Bean
-		public CreatePurchaseUseCaseImpl createPurchaseUseCase(PurchaseRepository purchaseRepository,
-			TicketingService ticketingService,
-			MemberPointService memberPointService,
-			MemberCrudService memberCrudService,
-			TicketConcurrencyService ticketConcurrencyService,
-			RedissonClient redissonClient) {
-			return new CreatePurchaseWithDistributedLockUseCase(purchaseRepository, ticketingService,
-				memberPointService, memberCrudService, ticketConcurrencyService, redissonClient);
-		}
 	}
 }

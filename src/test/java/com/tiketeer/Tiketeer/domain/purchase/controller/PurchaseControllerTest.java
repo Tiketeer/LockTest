@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.domain.purchase.PurchaseTestHelper;
-import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseRequestDto;
+import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseDLockRequestDto;
+import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchasePLockRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseResponseDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
@@ -62,9 +63,9 @@ public class PurchaseControllerTest {
 		var ticketing = ticketingTestHelper.createTicketing(seller.getId(), 0, 1000, 5);
 
 		var buyerEmail = "test2@test.com";
-		var buyer = testHelper.createMember(buyerEmail, 100000);
+		testHelper.createMember(buyerEmail, 100000);
 		var buyCnt = 2;
-		var req = PostPurchaseRequestDto.builder()
+		var req = PostPurchasePLockRequestDto.builder()
 			.ticketingId(ticketing.getId())
 			.email(buyerEmail)
 			.count(buyCnt)
@@ -73,6 +74,45 @@ public class PurchaseControllerTest {
 		// when
 		mockMvc.perform(
 				post("/api/purchases/p-lock")
+					.contextPath("/api")
+					.contentType(MediaType.APPLICATION_JSON)
+					.characterEncoding(StandardCharsets.UTF_8)
+					.content(objectMapper.writeValueAsString(req))
+			).andExpect(status().isCreated())
+			.andDo(response -> {
+				var result = testHelper.getDeserializedApiResponse(response.getResponse().getContentAsString(),
+					PostPurchaseResponseDto.class).getData();
+
+				// then
+				Assertions.assertThat(result.getPurchaseId()).isNotNull();
+				var purchase = purchaseRepository.findById(result.getPurchaseId());
+				Assertions.assertThat(purchase.isPresent()).isTrue();
+				Assertions.assertThat(ticketRepository.findAllByPurchase(purchase.get()).size()).isEqualTo(buyCnt);
+			});
+	}
+
+	@Test
+	@DisplayName("정상 컨디션 > 분산 락 구매 생성 요청 > 성공")
+	void postPurchaseWithDLockSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var seller = testHelper.createMember(email);
+		var ticketing = ticketingTestHelper.createTicketing(seller.getId(), 0, 1000, 5);
+
+		var buyerEmail = "test2@test.com";
+		testHelper.createMember(buyerEmail, 100000);
+		var buyCnt = 2;
+		var req = PostPurchaseDLockRequestDto.builder()
+			.ticketingId(ticketing.getId())
+			.email(buyerEmail)
+			.count(buyCnt)
+			.waitTime(10L)
+			.leaseTime(3L)
+			.build();
+
+		// when
+		mockMvc.perform(
+				post("/api/purchases/d-lock")
 					.contextPath("/api")
 					.contentType(MediaType.APPLICATION_JSON)
 					.characterEncoding(StandardCharsets.UTF_8)

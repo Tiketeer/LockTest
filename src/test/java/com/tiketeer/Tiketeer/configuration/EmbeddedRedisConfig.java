@@ -7,8 +7,9 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -17,7 +18,8 @@ import redis.embedded.RedisServer;
 
 @Slf4j
 @DisplayName("Embedded Redis 설정")
-@TestConfiguration
+@Configuration
+@Profile("test")
 public class EmbeddedRedisConfig {
 
 	@Value("${spring.redis.host}")

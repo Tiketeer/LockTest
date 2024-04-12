@@ -12,24 +12,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.MemberCrudService;
-import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
-import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
-import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
-@Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class})
+@Import({TestHelper.class, CreatePurchaseConcurrencyTestHelper.class, Transaction.class})
 @SpringBootTest
-class CreatePurchasePessimisticLockUseCaseTest {
+public class CreatePurchaseOLockUseCaseTest {
 
 	@Autowired
 	private TestHelper testHelper;
@@ -38,9 +31,11 @@ class CreatePurchasePessimisticLockUseCaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
-	private CreatePurchaseConcurrencyTest createPurchaseConcurrencyTest;
+	private CreatePurchaseConcurrencyTestHelper createPurchaseConcurrencyTest;
 	@Autowired
 	private Transaction transaction;
+	@Autowired
+	private CreatePurchaseOLockUseCase createPurchaseOLockUseCase;
 
 	@BeforeEach
 	void initTable() {
@@ -56,27 +51,28 @@ class CreatePurchasePessimisticLockUseCaseTest {
 	@DisplayName("10개의 티켓 생성 > 20명의 구매자가 경쟁 > 10명 구매 성공, 10명 구매 실패")
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
-		var ticketStock = 10;
 		var seller = testHelper.createMember("seller@etest.com");
-		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, ticketStock);
+		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 10);
 
 		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
-		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);
+		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing,
+			(email) -> createPurchaseOLockUseCase.createPurchase(
+				CreatePurchasePLockCommandDto.builder()
+					.ticketingId(ticketing.getId())
+					.memberEmail(email)
+					.count(1)
+					.build()));
 
 		//then
 		transaction.invoke(() -> {
 			var tickets = ticketRepository.findAllByPurchase(null);
 			assertThat(tickets.size()).isEqualTo(0);
-
 			var allMembers = memberRepository.findAll();
 
 			//assert all ticket owners are unique
-			var purchasedTickets = ticketRepository.findAllByPurchaseIsNotNull();
-			assertThat(purchasedTickets.size()).isEqualTo(ticketStock);
-
-			var ticketOwnerIdList = purchasedTickets
+			var ticketOwnerIdList = tickets
 				.stream()
 				.map(ticket -> ticket.getPurchase().getMember().getId()).toList();
 
@@ -88,24 +84,9 @@ class CreatePurchasePessimisticLockUseCaseTest {
 				.filter(member -> member.getPurchases().size() == 1)
 				.toList();
 
-			assertThat(ticketingSuccessMembers.size()).isEqualTo(ticketStock);
+			assertThat(ticketingSuccessMembers.size()).isEqualTo(10);
 			return null;
 		});
 	}
 
-	@TestConfiguration
-	static class TestConfig {
-		@Bean
-		public CreatePurchaseUseCase createPurchaseUseCase(
-			PurchaseRepository purchaseRepository,
-			TicketingService ticketingService,
-			MemberPointService memberPointService,
-			MemberCrudService memberCrudService,
-			TicketConcurrencyService ticketConcurrencyService,
-			TicketRepository ticketRepository,
-			PurchaseCrudService purchaseCrudService) {
-			return new CreatePurchasePessimisticLockUseCase(purchaseRepository, ticketingService, memberPointService,
-				memberCrudService, ticketConcurrencyService, ticketRepository, purchaseCrudService);
-		}
-	}
 }

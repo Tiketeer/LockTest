@@ -2,7 +2,7 @@ package com.tiketeer.Tiketeer.domain.purchase.controller.dto;
 
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(force = true)
-public class PostPurchaseRequestDto {
+public class PostPurchasePLockRequestDto {
 	@NotNull
 	private final UUID ticketingId;
 
@@ -24,18 +24,18 @@ public class PostPurchaseRequestDto {
 	private final String email;
 
 	@Builder
-	public PostPurchaseRequestDto(@NotNull UUID ticketingId,
+	public PostPurchasePLockRequestDto(@NotNull UUID ticketingId,
 		@NotNull Integer count, @NotBlank String email) {
 		this.ticketingId = ticketingId;
 		this.count = count;
 		this.email = email;
 	}
 
-	public CreatePurchaseCommandDto convertToDto() {
-		return CreatePurchaseCommandDto.builder()
+	public CreatePurchasePLockCommandDto convertToDto() {
+		return CreatePurchasePLockCommandDto.builder()
 			.memberEmail(email)
-			.ticketingId(this.ticketingId)
-			.count(this.count)
+			.ticketingId(ticketingId)
+			.count(count)
 			.build();
 	}
 }

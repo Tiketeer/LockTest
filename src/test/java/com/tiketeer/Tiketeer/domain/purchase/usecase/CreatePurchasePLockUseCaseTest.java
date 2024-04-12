@@ -12,21 +12,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketOptimisticLockConcurrencyService;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
-@Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class})
+@Import({TestHelper.class, CreatePurchaseConcurrencyTestHelper.class, Transaction.class})
 @SpringBootTest
-public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
+class CreatePurchasePLockUseCaseTest {
 
 	@Autowired
 	private TestHelper testHelper;
@@ -35,9 +31,11 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
-	private CreatePurchaseConcurrencyTest createPurchaseConcurrencyTest;
+	private CreatePurchaseConcurrencyTestHelper createPurchaseConcurrencyTest;
 	@Autowired
 	private Transaction transaction;
+	@Autowired
+	private CreatePurchasePLockUseCase createPurchasePessimisticLockUseCase;
 
 	@BeforeEach
 	void initTable() {
@@ -53,22 +51,33 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 	@DisplayName("10개의 티켓 생성 > 20명의 구매자가 경쟁 > 10명 구매 성공, 10명 구매 실패")
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
+		var ticketStock = 10;
 		var seller = testHelper.createMember("seller@etest.com");
-		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 10);
+		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, ticketStock);
 
 		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
-		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing);
+		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing,
+			(email) -> createPurchasePessimisticLockUseCase.createPurchase(
+				CreatePurchasePLockCommandDto.builder()
+					.ticketingId(ticketing.getId())
+					.memberEmail(email)
+					.count(1)
+					.build()));
 
 		//then
 		transaction.invoke(() -> {
 			var tickets = ticketRepository.findAllByPurchase(null);
 			assertThat(tickets.size()).isEqualTo(0);
+
 			var allMembers = memberRepository.findAll();
 
 			//assert all ticket owners are unique
-			var ticketOwnerIdList = tickets
+			var purchasedTickets = ticketRepository.findAllByPurchaseIsNotNull();
+			assertThat(purchasedTickets.size()).isEqualTo(ticketStock);
+
+			var ticketOwnerIdList = purchasedTickets
 				.stream()
 				.map(ticket -> ticket.getPurchase().getMember().getId()).toList();
 
@@ -80,18 +89,8 @@ public class CreatePurchaseUseCaseOptimisticLockConcurrencyTest {
 				.filter(member -> member.getPurchases().size() == 1)
 				.toList();
 
-			assertThat(ticketingSuccessMembers.size()).isEqualTo(10);
+			assertThat(ticketingSuccessMembers.size()).isEqualTo(ticketStock);
 			return null;
 		});
-	}
-
-	@TestConfiguration
-	static class TestConfig {
-		@Bean
-		public TicketConcurrencyService ticketConcurrencyService(
-			TicketRepository ticketRepository,
-			PurchaseCrudService purchaseCrudService) {
-			return new TicketOptimisticLockConcurrencyService(ticketRepository, purchaseCrudService);
-		}
 	}
 }

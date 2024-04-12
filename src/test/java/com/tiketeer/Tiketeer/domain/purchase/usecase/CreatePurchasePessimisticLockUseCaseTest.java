@@ -17,16 +17,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.member.service.MemberCrudService;
+import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
+import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
-import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketOptimisticLockConcurrencyService;
+import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
 @Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class})
 @SpringBootTest
-class CreatePurchaseUseCasePessimisticLockConcurrencyTest {
+class CreatePurchasePessimisticLockUseCaseTest {
 
 	@Autowired
 	private TestHelper testHelper;
@@ -93,10 +96,16 @@ class CreatePurchaseUseCasePessimisticLockConcurrencyTest {
 	@TestConfiguration
 	static class TestConfig {
 		@Bean
-		public TicketConcurrencyService ticketConcurrencyService(
+		public CreatePurchaseUseCase createPurchaseUseCase(
+			PurchaseRepository purchaseRepository,
+			TicketingService ticketingService,
+			MemberPointService memberPointService,
+			MemberCrudService memberCrudService,
+			TicketConcurrencyService ticketConcurrencyService,
 			TicketRepository ticketRepository,
 			PurchaseCrudService purchaseCrudService) {
-			return new TicketOptimisticLockConcurrencyService(ticketRepository, purchaseCrudService);
+			return new CreatePurchasePessimisticLockUseCase(purchaseRepository, ticketingService, memberPointService,
+				memberCrudService, ticketConcurrencyService, ticketRepository, purchaseCrudService);
 		}
 	}
 }

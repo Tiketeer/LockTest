@@ -33,6 +33,7 @@ jobs:
         with:
           junit_files: '**/build/test-results/test/TEST-*.xml'
           comment_mode: off
+          large_files: true
 
       - name: Add coverage to PR
         id: jacoco

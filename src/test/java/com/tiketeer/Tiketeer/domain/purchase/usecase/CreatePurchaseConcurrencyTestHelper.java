@@ -17,7 +17,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @TestComponent
-public class CreatePurchaseConcurrencyTest {
+public class CreatePurchaseConcurrencyTestHelper {
 	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired

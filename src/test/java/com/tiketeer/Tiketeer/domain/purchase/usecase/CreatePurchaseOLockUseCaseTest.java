@@ -20,7 +20,7 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
-@Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class})
+@Import({TestHelper.class, CreatePurchaseConcurrencyTestHelper.class, Transaction.class})
 @SpringBootTest
 public class CreatePurchaseOLockUseCaseTest {
 
@@ -31,7 +31,7 @@ public class CreatePurchaseOLockUseCaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
-	private CreatePurchaseConcurrencyTest createPurchaseConcurrencyTest;
+	private CreatePurchaseConcurrencyTestHelper createPurchaseConcurrencyTest;
 	@Autowired
 	private Transaction transaction;
 	@Autowired

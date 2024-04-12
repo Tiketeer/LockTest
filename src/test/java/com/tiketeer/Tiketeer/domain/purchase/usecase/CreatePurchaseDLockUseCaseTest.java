@@ -21,7 +21,7 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
 
-@Import({TestHelper.class, CreatePurchaseConcurrencyTest.class, Transaction.class, EmbeddedRedisConfig.class})
+@Import({TestHelper.class, CreatePurchaseConcurrencyTestHelper.class, Transaction.class, EmbeddedRedisConfig.class})
 @SpringBootTest
 class CreatePurchaseDLockUseCaseTest {
 
@@ -32,7 +32,7 @@ class CreatePurchaseDLockUseCaseTest {
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
-	private CreatePurchaseConcurrencyTest createPurchaseConcurrencyTest;
+	private CreatePurchaseConcurrencyTestHelper createPurchaseConcurrencyTest;
 	@Autowired
 	private Transaction transaction;
 	@Autowired

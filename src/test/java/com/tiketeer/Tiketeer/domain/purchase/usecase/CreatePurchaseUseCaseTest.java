@@ -1,7 +1,5 @@
 package com.tiketeer.Tiketeer.domain.purchase.usecase;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -14,24 +12,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.exception.NotEnoughPointException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
+import com.tiketeer.Tiketeer.domain.ticketing.TicketingTestHelper;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
-@Import({TestHelper.class})
+@Import({TestHelper.class, TicketingTestHelper.class})
 @SpringBootTest
 public class CreatePurchaseUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private CreatePurchaseUseCase createPurchaseUseCase;
+	private TicketingTestHelper ticketingTestHelper;
+	@Autowired
+	private CreatePurchaseUseCaseImpl createPurchaseUseCase;
 	@Autowired
 	private TicketRepository ticketRepository;
 	@Autowired
@@ -57,7 +55,7 @@ public class CreatePurchaseUseCaseTest {
 		var member = testHelper.createMember(mockEmail, "1234");
 		member.setPoint(initPoint);
 
-		var ticketing = createTicketing(member, 0, 3000, 5);
+		var ticketing = ticketingTestHelper.createTicketing(member.getId(), 0, 3000, 5);
 
 		var purchaseCount = 3;
 		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
@@ -104,7 +102,7 @@ public class CreatePurchaseUseCaseTest {
 		// given
 		var sellerEmail = "test1@test.com";
 		var seller = testHelper.createMember(sellerEmail);
-		var ticketing = createTicketing(seller, 0, 1000, 3);
+		var ticketing = ticketingTestHelper.createTicketing(seller.getId(), 0, 1000, 3);
 
 		var buyerEmail = "test2@test.com";
 		var buyer = testHelper.createMember(buyerEmail);
@@ -128,7 +126,7 @@ public class CreatePurchaseUseCaseTest {
 		// given
 		var sellerEmail = "test@test.com";
 		var seller = testHelper.createMember(sellerEmail);
-		var ticketing = createTicketing(seller, 0, 3000, 5);
+		var ticketing = ticketingTestHelper.createTicketing(seller.getId(), 0, 3000, 5);
 
 		var buyerEmail = "test2@test.com";
 		var buyer = testHelper.createMember(buyerEmail);
@@ -145,27 +143,5 @@ public class CreatePurchaseUseCaseTest {
 			createPurchaseUseCase.createPurchase(createPurchaseCommand);
 			// then
 		}).isInstanceOf(NotEnoughPointException.class);
-	}
-
-	private Ticketing createTicketing(Member member, int saleStartAfterYears, long price, int stock) {
-		var now = LocalDateTime.now();
-		var eventTime = now.plusYears(saleStartAfterYears + 2);
-		var saleStart = now.plusYears(saleStartAfterYears);
-		var saleEnd = now.plusYears(saleStartAfterYears + 1);
-		var ticketing = ticketingRepository.save(Ticketing.builder()
-			.price(price)
-			.title("test")
-			.member(member)
-			.description("")
-			.location("Seoul")
-			.eventTime(eventTime)
-			.saleStart(saleStart)
-			.saleEnd(saleEnd)
-			.category("concert")
-			.runningMinutes(300).build());
-		ticketRepository.saveAll(Arrays.stream(new int[stock])
-			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
-			.toList());
-		return ticketing;
 	}
 }

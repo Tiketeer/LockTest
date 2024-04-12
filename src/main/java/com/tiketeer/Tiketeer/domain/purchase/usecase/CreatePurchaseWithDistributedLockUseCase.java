@@ -19,7 +19,7 @@ import com.tiketeer.Tiketeer.domain.ticket.exception.TicketConcurrencyException;
 import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 
-public class CreatePurchaseWithDistributedLockUseCase extends CreatePurchaseUseCase {
+public class CreatePurchaseWithDistributedLockUseCase extends CreatePurchaseUseCaseImpl {
 	private final RedissonClient redissonClient;
 	private final long waitTime = 10L;
 	private final long leaseTime = 3L;

@@ -8,7 +8,7 @@ import com.tiketeer.Tiketeer.domain.member.service.MemberCrudService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.CreatePurchaseUseCase;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.CreatePurchaseUseCaseImpl;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketConcurrencyService;
 import com.tiketeer.Tiketeer.domain.ticket.service.concurrency.TicketNonConcurrencyService;
@@ -25,12 +25,12 @@ public class TicketConcurrencyConfig {
 	}
 
 	@Bean
-	public CreatePurchaseUseCase createPurchaseUseCase(PurchaseRepository purchaseRepository,
+	public CreatePurchaseUseCaseImpl createPurchaseUseCase(PurchaseRepository purchaseRepository,
 		TicketingService ticketingService,
 		MemberPointService memberPointService,
 		MemberCrudService memberCrudService,
 		TicketConcurrencyService ticketConcurrencyService) {
-		return new CreatePurchaseUseCase(purchaseRepository, ticketingService,
+		return new CreatePurchaseUseCaseImpl(purchaseRepository, ticketingService,
 			memberPointService, memberCrudService, ticketConcurrencyService);
 	}
 }

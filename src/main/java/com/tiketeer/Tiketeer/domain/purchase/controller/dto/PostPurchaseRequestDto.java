@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,17 +20,20 @@ public class PostPurchaseRequestDto {
 
 	@NotNull
 	private final Integer count;
+	@NotBlank
+	private final String email;
 
 	@Builder
 	public PostPurchaseRequestDto(@NotNull UUID ticketingId,
-		@NotNull Integer count) {
+		@NotNull Integer count, @NotBlank String email) {
 		this.ticketingId = ticketingId;
 		this.count = count;
-
+		this.email = email;
 	}
 
-	public CreatePurchaseCommandDto convertToDto(String memberEmail) {
-		return CreatePurchaseCommandDto.builder().memberEmail(memberEmail)
+	public CreatePurchaseCommandDto convertToDto() {
+		return CreatePurchaseCommandDto.builder()
+			.memberEmail(email)
 			.ticketingId(this.ticketingId)
 			.count(this.count)
 			.build();

@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -59,6 +61,8 @@ public class MemberControllerTest {
 		mockMvc.perform(
 			MockMvcRequestBuilders.post("/api/members")
 				.contextPath("/api")
+				.contentType(MediaType.APPLICATION_JSON)
+				.characterEncoding(StandardCharsets.UTF_8)
 				.content(objectMapper.writeValueAsString(request))
 			// then
 		).andExpect(MockMvcResultMatchers.status().is2xxSuccessful());

@@ -26,7 +26,7 @@ public class PurchaseController {
 		this.createPurchasePessimisticLockUseCase = createPurchasePessimisticLockUseCase;
 	}
 
-	@PostMapping("p-lock")
+	@PostMapping("/p-lock")
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchaseWithPLock(
 		@Valid @RequestBody PostPurchaseRequestDto request) {
 		var result = createPurchasePessimisticLockUseCase.createPurchase(request.convertToDto());

@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -15,6 +16,7 @@ public class CreateMembersBatchUseCase {
 		this.memberRepository = memberRepository;
 	}
 
+	@Transactional
 	public void createMembersInBatch(CreateMembersBatchCommandDto command) {
 		var emailList = command.getEmailList();
 

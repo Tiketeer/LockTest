@@ -2,7 +2,7 @@ package com.tiketeer.Tiketeer.domain.purchase.controller.dto;
 
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseDLockCommandDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(force = true)
-public class PostPurchasePLockRequestDto {
+public class PostPurchaseDLockRequestDto {
 	@NotNull
 	private final UUID ticketingId;
 
@@ -22,20 +22,28 @@ public class PostPurchasePLockRequestDto {
 	private final Integer count;
 	@NotBlank
 	private final String email;
+	@NotNull
+	private final Long waitTime;
+	@NotNull
+	private final Long leaseTime;
 
 	@Builder
-	public PostPurchasePLockRequestDto(@NotNull UUID ticketingId,
-		@NotNull Integer count, @NotBlank String email) {
+	public PostPurchaseDLockRequestDto(@NotNull UUID ticketingId,
+		@NotNull Integer count, @NotBlank String email, @NotNull Long waitTime, @NotNull Long leaseTime) {
 		this.ticketingId = ticketingId;
 		this.count = count;
 		this.email = email;
+		this.waitTime = waitTime;
+		this.leaseTime = leaseTime;
 	}
 
-	public CreatePurchasePLockCommandDto convertToDto() {
-		return CreatePurchasePLockCommandDto.builder()
+	public CreatePurchaseDLockCommandDto convertToDto() {
+		return CreatePurchaseDLockCommandDto.builder()
 			.memberEmail(email)
 			.ticketingId(ticketingId)
 			.count(count)
+			.waitTime(waitTime)
+			.leaseTime(leaseTime)
 			.build();
 	}
 }

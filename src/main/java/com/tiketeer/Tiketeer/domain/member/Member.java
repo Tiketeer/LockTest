@@ -35,7 +35,7 @@ import lombok.ToString;
 @SQLDelete(sql = "UPDATE members SET deleted_at = now() WHERE member_id = ?")
 @SQLRestriction("deleted_at is null")
 @Getter
-@ToString
+@ToString(exclude = "purchases")
 public class Member {
 	@Id
 	@UuidGenerator
@@ -47,10 +47,6 @@ public class Member {
 	private String email;
 
 	@Setter
-	@Column(name = "password")
-	private String password;
-
-	@Setter
 	@Column(name = "point", nullable = false)
 	private long point = 0L;
 
@@ -58,11 +54,6 @@ public class Member {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
-
-	@Setter
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "last_login_at")
-	private LocalDateTime lastLoginAt;
 
 	@OneToMany(mappedBy = "member")
 	private List<Purchase> purchases = new ArrayList<>();
@@ -72,9 +63,8 @@ public class Member {
 	private LocalDateTime deletedAt;
 
 	@Builder
-	public Member(String email, String password, long point) {
+	public Member(String email, long point) {
 		this.email = email;
-		this.password = password;
 		this.point = point;
 	}
 }

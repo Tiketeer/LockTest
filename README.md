@@ -37,7 +37,15 @@
     jpa:
       hibernate:
         ddl-auto: create
-      show-sql: true
+      properties:
+        hibernate:
+          format_sql: true
+          highlight_sql: true
+          generate_statistics: true
+          jdbc.batch_size: 300
+          order_inserts: true
+          order_updates: true
+          session.events.log.LOG_QUERIES_SLOWER_THAN_MS: 300
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
@@ -48,7 +56,10 @@
   
   logging:
     level:
-      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      org.hibernate.SQL: DEBUG
+      org.hibernate.SQL_SLOW: INFO
+      org.hibernate.orm.jdbc.bind: TRACE
+      org.hibernate.stat: TRACE
   
   custom:
     service:

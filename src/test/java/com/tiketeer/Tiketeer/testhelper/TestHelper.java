@@ -56,24 +56,13 @@ public class TestHelper {
 
 	@Transactional
 	public Member createMember(String email) {
-		return createMember(email, "1q2w3e4r!!");
-	}
-
-	@Transactional
-	public Member createMember(String email, String password) {
-		return createMember(email, password, 0);
+		return createMember(email, 0L);
 	}
 
 	@Transactional
 	public Member createMember(String email, long point) {
-		return createMember(email, "1q2w3e4r!!", point);
-	}
-
-	@Transactional
-	public Member createMember(String email, String password, long point) {
 		return memberRepository.save(Member.builder()
 			.email(email)
-			.password(password)
 			.point(point)
 			.build());
 	}

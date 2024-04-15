@@ -52,7 +52,7 @@ public class CreatePurchaseUseCaseTest {
 		// given
 		var mockEmail = "test1@test.com";
 		var initPoint = 10000;
-		var member = testHelper.createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail);
 		member.setPoint(initPoint);
 
 		var ticketing = ticketingTestHelper.createTicketing(member.getId(), 0, 3000, 5);

@@ -22,7 +22,7 @@ class MemberRepositoryTest {
 	@DisplayName("멤버 저장 > 멤버 조회 > 저장한 값과 조회된 값 비교")
 	void findByEmailSuccess() {
 		Member saved = memberRepository.save(
-			new Member("test@gmail.com", "asdf1234", 0L));
+			new Member("test@gmail.com", 0L));
 
 		Optional<Member> optionalMember = memberRepository.findByEmail(saved.getEmail());
 
@@ -38,7 +38,6 @@ class MemberRepositoryTest {
 		for (int idx = 0; idx < memberCnt; idx++) {
 			memberRepository.save(Member.builder()
 				.email("test" + idx + "@test.com")
-				.password("asdf1234")
 				.point(0L)
 				.build());
 		}

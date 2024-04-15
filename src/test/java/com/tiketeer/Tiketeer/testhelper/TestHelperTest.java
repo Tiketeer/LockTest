@@ -54,7 +54,6 @@ public class TestHelperTest {
 		var mockPwd = "1234sdasdf";
 		var mockMember = memberRepository.save(Member.builder()
 			.email(mockEmail)
-			.password(mockPwd)
 			.point(0L)
 			.build());
 
@@ -112,7 +111,6 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat("1q2w3e4r!!").isEqualTo(member.getPassword());
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -124,10 +122,9 @@ public class TestHelperTest {
 		testHelper.initDB();
 
 		var email = "test@test.com";
-		var password = "qwerty12345!@#$";
 
 		// when
-		var memberId = testHelper.createMember(email, password).getId();
+		var memberId = testHelper.createMember(email).getId();
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
@@ -135,7 +132,6 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(password).isEqualTo(member.getPassword());
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -147,10 +143,9 @@ public class TestHelperTest {
 		testHelper.initDB();
 
 		var email = "test@test.com";
-		var password = "qwerty12345!@#$";
 
 		// when
-		var memberId = testHelper.createMember(email, password, 10).getId();
+		var memberId = testHelper.createMember(email, 10).getId();
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
@@ -158,7 +153,6 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(password).isEqualTo(member.getPassword());
 		assertThat(member.getPoint()).isEqualTo(10);
 	}
 
@@ -170,7 +164,6 @@ public class TestHelperTest {
 		testHelper.initDB();
 
 		var email = "test@test.com";
-		var password = "1q2w3e4r!!";
 
 		// when
 		var memberId = testHelper.createMember(email, 10).getId();
@@ -181,7 +174,6 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(password).isEqualTo(member.getPassword());
 		assertThat(member.getPoint()).isEqualTo(10);
 	}
 

@@ -1,3 +1,0 @@
-id,lock,backoff,retry,ticket,vus,waitTime,leasTime,duration
-0,olock,300,10,10,100,100,100,241.899
-1,olock,100,10,10,100,100,100,222.899

@@ -1,9 +1,17 @@
 import sys
 from pathlib import Path
-import csv
+import pandas as pd
 
 TARGET = 'http_req_duration'
 RESULT_FILE_NAME = 'result.csv'
+
+def init():
+    p = Path('./result')
+
+    if p.exists():
+        return
+    
+    p.mkdir()
 
 def validateDir(path: str):
     p = Path(path)
@@ -32,34 +40,30 @@ def makeResult(p: Path):
             countDict[fileName] = 0
         
         with x.open('r', newline='') as f:
-            reader = csv.reader(f)
-            # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
-            for row in reader:
-                if row[0] == TARGET:
-                    metric_value = float(row[2])
+            df = pd.read_csv(f)
 
-                    durationDict[fileName] += metric_value
-                    countDict[fileName] += 1
-                    break
-    
+            # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
+            durationDict[fileName] += df[df['metric_name'] == TARGET]['metric_value'].values[0]
+            countDict[fileName] += 1
+
     for key in durationDict:
         durationDict[key] = durationDict[key] / countDict[key]
     return durationDict
     
 def writeResultFile(p: Path, result: dict):
     with p.open('w', newline='') as f:
-        writer = csv.writer(f)
+        columns = ['lock', 'backoff', 'retry', 'ticket', 'vus', 'waitTime', 'leaseTime', 'duration']
+        df = pd.DataFrame(columns=columns)
 
-        headerFlag = True
         for i, key in enumerate(result):
             lock, backoff, backoffValue, retry, retryValue, ticket, ticketValue, vus, vusValue, waitTime, waitTimeValue, leaseTime, leaseTimeValue = key.split('_')
-            if headerFlag:
-                writer.writerow(['id', 'lock', 'backoff', 'retry', 'ticket', 'vus', 'waitTime', 'leasTime', 'duration'])
-                headerFlag = False
-            
-            writer.writerow([i, lock, backoffValue, retryValue, ticketValue, vusValue, waitTimeValue, leaseTimeValue, result[key]])
+
+            se = pd.Series([lock, backoffValue, retryValue, ticketValue, vusValue, waitTimeValue, leaseTimeValue, result[key]], index=df.columns)
+            df = pd.concat([df, pd.DataFrame([se])], ignore_index=True)
+        df.to_csv(f)
 
 if __name__ == '__main__':
+    init()
     validateDir('./result')
 
     assert len(sys.argv) > 1, 'iteration을 지정할 인자가 필요합니다.'
@@ -67,7 +71,6 @@ if __name__ == '__main__':
     path = '/'.join(['./result', sys.argv[1]])
     validateDir(path)
     p = Path(path)
-    print(p)
 
     result = makeResult(p)
     

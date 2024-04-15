@@ -5,8 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Limit;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +15,7 @@ import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.purchase.service.PurchaseCrudService;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseOLockCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseResultDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
@@ -49,14 +48,11 @@ public class CreatePurchaseOLockUseCase {
 	}
 
 	@Transactional
-	@Retryable(
-		retryFor = OptimisticLockingFailureException.class,
-		backoff = @Backoff(delay = 100),
-		maxAttempts = 100
-	)
-	public CreatePurchaseResultDto createPurchase(CreatePurchasePLockCommandDto command) {
+	public CreatePurchaseResultDto createPurchase(CreatePurchaseOLockCommandDto command) {
 		var ticketingId = command.getTicketingId();
 		var count = command.getCount();
+		var backoff = command.getBackoff();
+		var maxAttempts = command.getMaxAttempts();
 
 		var member = memberCrudService.findByEmail(command.getMemberEmail());
 
@@ -66,7 +62,15 @@ public class CreatePurchaseOLockUseCase {
 
 		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
 
-		assignPurchaseToTicket(ticketingId, newPurchase.getId(), count);
+		RetryTemplate.builder()
+			.maxAttempts(maxAttempts)
+			.fixedBackoff(backoff)
+			.retryOn(OptimisticLockingFailureException.class)
+			.build()
+			.execute(context -> {
+				assignPurchaseToTicket(ticketingId, newPurchase.getId(), count);
+				return null;
+			});
 
 		return CreatePurchaseResultDto.builder()
 			.purchaseId(newPurchase.getId())

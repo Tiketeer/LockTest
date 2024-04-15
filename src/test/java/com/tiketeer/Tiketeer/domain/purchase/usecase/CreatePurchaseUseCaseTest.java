@@ -29,7 +29,7 @@ public class CreatePurchaseUseCaseTest {
 	@Autowired
 	private TicketingTestHelper ticketingTestHelper;
 	@Autowired
-	private CreatePurchaseOLockUseCase createPurchaseUseCase;
+	private CreatePurchasePLockUseCase createPurchaseUseCase;
 	@Autowired
 	private TicketRepository ticketRepository;
 	@Autowired

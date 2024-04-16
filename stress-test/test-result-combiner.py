@@ -52,13 +52,13 @@ def makeResult(p: Path):
     
 def writeResultFile(p: Path, result: dict):
     with p.open('w', newline='') as f:
-        columns = ['lock', 'backoff', 'retry', 'ticket', 'vus', 'waitTime', 'leaseTime', 'duration']
+        columns = ['lock', 'vus', 'tickets', 'backoff', 'retry', 'waitTime', 'leaseTime', 'duration']
         df = pd.DataFrame(columns=columns)
 
         for i, key in enumerate(result):
-            lock, backoff, backoffValue, retry, retryValue, ticket, ticketValue, vus, vusValue, waitTime, waitTimeValue, leaseTime, leaseTimeValue = key.split('_')
+            lock, vus, vusValue, tickets, ticketsValue, backoff, backoffValue, retry, retryValue, waitTime, waitTimeValue, leaseTime, leaseTimeValue = key.split('_')
 
-            se = pd.Series([lock, backoffValue, retryValue, ticketValue, vusValue, waitTimeValue, leaseTimeValue, result[key]], index=df.columns)
+            se = pd.Series([lock, vusValue, ticketsValue, backoffValue, retryValue, waitTimeValue, leaseTimeValue, result[key]], index=df.columns)
             df = pd.concat([df, pd.DataFrame([se])], ignore_index=True)
         df.to_csv(f)
 

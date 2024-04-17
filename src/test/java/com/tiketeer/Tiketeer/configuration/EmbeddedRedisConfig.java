@@ -65,7 +65,7 @@ public class EmbeddedRedisConfig {
 
 	private File getRedisServerExecutable() {
 		try {
-			return new File("src/main/resources/redis/redis-server-7.2.3-mac-arm64");
+			return new File("src/test/resources/redis/redis-server-7.2.3-mac-arm64");
 		} catch (Exception e) {
 			throw new RuntimeException("redis-server binary 파일을 찾을 수 없습니다.");
 		}

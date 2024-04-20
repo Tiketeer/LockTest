@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  k6:
+    image: grafana/k6
+    volumes:
+      - ./output:/output
+      - ./k6-scripts:/scripts
+    command: >
+      run
+      -e VSR=${VSR} 
+      -e TICKETS=${TICKETS}
+      -e ITERATION=${ITERATION}
+      -e LOCKTYPE=${LOCKTYPE}
+      /scripts/stress.js
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # TODO: 서버, DB 서비스 함께 올리기

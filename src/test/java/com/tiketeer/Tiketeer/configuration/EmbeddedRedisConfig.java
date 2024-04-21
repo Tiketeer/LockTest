@@ -1,6 +1,8 @@
 package com.tiketeer.Tiketeer.configuration;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import org.junit.jupiter.api.DisplayName;
 import org.redisson.Redisson;
@@ -34,7 +36,13 @@ public class EmbeddedRedisConfig {
 
 	@PostConstruct
 	public void startRedis() throws IOException {
-		this.redisServer = RedisServer.builder().port(port).setting("maxmemory " + maxmemorySize + "M").build();
+		if (isArmArchitecture()) {
+			log.info("ARM Architecture");
+			redisServer = new RedisServer(Objects.requireNonNull(getRedisServerExecutable()), port);
+		} else {
+			log.info("not ARM Architecture");
+			this.redisServer = RedisServer.builder().port(port).setting("maxmemory " + maxmemorySize + "M").build();
+		}
 		try {
 			this.redisServer.start();
 			log.info("레디스 서버 시작 성공");
@@ -54,5 +62,18 @@ public class EmbeddedRedisConfig {
 		config.useSingleServer()
 			.setAddress("redis://" + host + ":" + port);
 		return Redisson.create(config);
+	}
+
+	private File getRedisServerExecutable() {
+		try {
+			return new File("src/test/resources/redis/redis-server-7.2.3-mac-arm64");
+		} catch (Exception e) {
+			throw new RuntimeException("redis-server binary 파일을 찾을 수 없습니다.");
+		}
+	}
+
+	private boolean isArmArchitecture() {
+		log.debug("Checking arm architecture");
+		return System.getProperty("os.arch").contains("aarch64");
 	}
 }

@@ -40,6 +40,7 @@ public class EmbeddedRedisConfig {
 			log.info("ARM Architecture");
 			redisServer = new RedisServer(Objects.requireNonNull(getRedisServerExecutable()), port);
 		} else {
+			log.info("not ARM Architecture");
 			this.redisServer = RedisServer.builder().port(port).setting("maxmemory " + maxmemorySize + "M").build();
 		}
 		try {
@@ -72,6 +73,7 @@ public class EmbeddedRedisConfig {
 	}
 
 	private boolean isArmArchitecture() {
+		log.debug("Checking arm architecture");
 		return System.getProperty("os.arch").contains("aarch64");
 	}
 }

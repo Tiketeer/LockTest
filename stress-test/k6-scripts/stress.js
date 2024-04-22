@@ -29,25 +29,15 @@ const commonPwd = "1q2w3e4r@@Q";
 
 export function setup() {
   // 멤버 생성 (1: seller, n: buyer)
-  const userMetadata = Array(setupVar.userNum)
+  const buyerEmailList = Array(setupVar.userNum)
     .fill()
-    .map(() => {
-      return {
-        email: `test-buyer-${uuidv4()}@test.com`,
-        password: commonPwd,
-        role: "BUYER",
-        token: "",
-      };
-    });
+    .map(() => `test-buyer-${uuidv4()}@test.com`);
 
   const sellerEmail = `test-seller-${uuidv4()}@test.com`;
 
   wrapWithTimeLogging("유저 생성", () => {
     createUsers({
-      members: [
-        ...userMetadata,
-        { email: sellerEmail, password: commonPwd, role: "SELLER" },
-      ],
+      emailList: [...buyerEmailList, sellerEmail],
     });
   });
 
@@ -63,64 +53,47 @@ export function setup() {
   );
 
   const ticketingId = wrapWithTimeLogging("티케팅 생성", () => {
-    return createTicketing(
-      {
-        title: "Stress Test",
-        location: "서울",
-        category: "IT",
-        runningMinutes: 100,
-        price: setupVar.ticketPrice,
-        saleStart,
-        saleEnd: new Date(
-          new Date().setFullYear(now.getFullYear() + 1)
-        ).toISOString(),
-        eventTime: new Date(
-          new Date().setFullYear(now.getFullYear() + 2)
-        ).toISOString(),
-        stock: setupVar.ticketStock,
-      },
-      sellerEmail,
-      commonPwd
-    );
+    return createTicketing({
+      title: "Stress Test",
+      location: "서울",
+      category: "IT",
+      runningMinutes: 100,
+      price: setupVar.ticketPrice,
+      saleStart,
+      saleEnd: new Date(
+        new Date().setFullYear(now.getFullYear() + 1)
+      ).toISOString(),
+      eventTime: new Date(
+        new Date().setFullYear(now.getFullYear() + 2)
+      ).toISOString(),
+      stock: setupVar.ticketStock,
+      email: sellerEmail,
+    });
   });
 
-  wrapWithTimeLogging(
-    `유저 일괄 로그인 (유저 수: ${userMetadata.length})`,
-    () => {
-      const accessTokens = batchLogin(userMetadata);
-      for (let idx = 0; idx < userMetadata.length; idx++) {
-        userMetadata[idx].token = accessTokens[idx];
-      }
-    }
-  );
-
-  return { userMetadata, ticketingId };
+  return { buyerEmailList, ticketingId };
 }
 
-export default function ({ userMetadata, ticketingId }) {
+export default function ({ buyerEmailList, ticketingId }) {
   const userCounter = __VU;
 
-  const accessToken = userMetadata[userCounter].token;
+  const email = buyerEmailList[userCounter];
 
-  puchase(ticketingId, 1, accessToken);
+  // TODO: 락 방법론 마다 분리된 EP 잘 찔러보기
+  puchase(ticketingId, 1, email);
 }
 
 function createUsers(users) {
-  const response = http.post(
-    domain + "/api/stress-test/members",
-    JSON.stringify(users),
-    {
-      headers: commonHeader,
-    }
-  );
+  const response = http.post(domain + "/api/members", JSON.stringify(users), {
+    headers: commonHeader,
+  });
 
   check(response, {
     "status check after create user": (r) => r.status === 200,
   });
 }
 
-function createTicketing(ticketingMetadata, sellerEmail, sellerPwd) {
-  const accessToken = login(sellerEmail, sellerPwd);
+function createTicketing(ticketingMetadata) {
   const response = http.post(
     domain + "/api/ticketings",
     JSON.stringify(ticketingMetadata),
@@ -141,44 +114,7 @@ function createTicketing(ticketingMetadata, sellerEmail, sellerPwd) {
   return response.json("data")["ticketingId"];
 }
 
-function login(email, password) {
-  const response = http.post(
-    domain + "/api/auth/login",
-    JSON.stringify({ email, password }),
-    {
-      headers: commonHeader,
-    }
-  );
-
-  check(response, {
-    "status check after login": (r) => r.status === 200,
-  });
-
-  return response.cookies["accessToken"][0].value;
-}
-
-function batchLogin(users) {
-  const batchReqs = users.map(({ email, password }) => ({
-    method: "POST",
-    url: domain + "/api/auth/login",
-    body: JSON.stringify({ email, password }),
-    params: {
-      headers: commonHeader,
-    },
-  }));
-
-  const responses = http.batch(batchReqs);
-
-  responses.map((response) =>
-    check(response, {
-      "status check after batch login": (r) => r.status === 200,
-    })
-  );
-
-  return responses.map((res) => res.cookies["accessToken"][0].value);
-}
-
-function puchase(ticketingId, count, accessToken) {
+function puchase(ticketingId, count, buyerEmail) {
   const response = http.post(
     domain + "/api/purchases",
     JSON.stringify({
@@ -187,7 +123,6 @@ function puchase(ticketingId, count, accessToken) {
     }),
     {
       headers: commonHeader,
-      cookies: { accessToken },
     }
   );
 

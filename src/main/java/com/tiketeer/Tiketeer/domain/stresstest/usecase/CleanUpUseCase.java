@@ -10,10 +10,10 @@ import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
 @Service
 public class CleanUpUseCase {
-	private MemberRepository memberRepository;
-	private PurchaseRepository purchaseRepository;
-	private TicketRepository ticketRepository;
-	private TicketingRepository ticketingRepository;
+	private final MemberRepository memberRepository;
+	private final PurchaseRepository purchaseRepository;
+	private final TicketRepository ticketRepository;
+	private final TicketingRepository ticketingRepository;
 
 	@Autowired
 	public CleanUpUseCase(MemberRepository memberRepository, PurchaseRepository purchaseRepository,

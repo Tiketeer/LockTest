@@ -34,9 +34,9 @@ public class EmbeddedRedisConfig {
 
 	@PostConstruct
 	public void startRedis() throws IOException {
-		this.redisServer = RedisServer.builder().port(port).setting("maxmemory " + maxmemorySize + "M").build();
+		redisServer = RedisServer.builder().port(port).setting("maxmemory " + maxmemorySize + "M").build();
 		try {
-			this.redisServer.start();
+			redisServer.start();
 			log.info("레디스 서버 시작 성공");
 		} catch (Exception e) {
 			log.error("레디스 서버 시작 실패");

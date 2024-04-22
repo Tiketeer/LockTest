@@ -53,7 +53,7 @@ class CreatePurchaseDLockUseCaseTest {
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
 		var ticketStock = 10;
-		var seller = testHelper.createMember("seller@etest.com");
+		var seller = testHelper.createMember("seller@test.com");
 		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, ticketStock);
 
 		int threadNums = 20;

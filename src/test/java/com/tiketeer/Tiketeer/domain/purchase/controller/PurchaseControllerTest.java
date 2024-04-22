@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.domain.purchase.PurchaseTestHelper;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseDLockRequestDto;
+import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseOLockRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchasePLockRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseResponseDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
@@ -113,6 +114,45 @@ public class PurchaseControllerTest {
 		// when
 		mockMvc.perform(
 				post("/api/purchases/d-lock")
+					.contextPath("/api")
+					.contentType(MediaType.APPLICATION_JSON)
+					.characterEncoding(StandardCharsets.UTF_8)
+					.content(objectMapper.writeValueAsString(req))
+			).andExpect(status().isCreated())
+			.andDo(response -> {
+				var result = testHelper.getDeserializedApiResponse(response.getResponse().getContentAsString(),
+					PostPurchaseResponseDto.class).getData();
+
+				// then
+				Assertions.assertThat(result.getPurchaseId()).isNotNull();
+				var purchase = purchaseRepository.findById(result.getPurchaseId());
+				Assertions.assertThat(purchase.isPresent()).isTrue();
+				Assertions.assertThat(ticketRepository.findAllByPurchase(purchase.get()).size()).isEqualTo(buyCnt);
+			});
+	}
+
+	@Test
+	@DisplayName("정상 컨디션 > 낙관적 락 구매 생성 요청 > 성공")
+	void postPurchaseWithOLockSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var seller = testHelper.createMember(email);
+		var ticketing = ticketingTestHelper.createTicketing(seller.getId(), 0, 1000, 5);
+
+		var buyerEmail = "test2@test.com";
+		testHelper.createMember(buyerEmail, 100000);
+		var buyCnt = 2;
+		var req = PostPurchaseOLockRequestDto.builder()
+			.ticketingId(ticketing.getId())
+			.email(buyerEmail)
+			.count(buyCnt)
+			.backoff(100L)
+			.maxAttempts(100)
+			.build();
+
+		// when
+		mockMvc.perform(
+				post("/api/purchases/o-lock")
 					.contextPath("/api")
 					.contentType(MediaType.APPLICATION_JSON)
 					.characterEncoding(StandardCharsets.UTF_8)

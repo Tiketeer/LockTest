@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchasePLockCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseOLockCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 import com.tiketeer.Tiketeer.testhelper.Transaction;
@@ -51,18 +51,21 @@ public class CreatePurchaseOLockUseCaseTest {
 	@DisplayName("10개의 티켓 생성 > 20명의 구매자가 경쟁 > 10명 구매 성공, 10명 구매 실패")
 	void createPurchaseWithConcurrency() throws InterruptedException {
 		//given
-		var seller = testHelper.createMember("seller@etest.com");
-		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, 10);
+		var ticketStock = 10;
+		var seller = testHelper.createMember("seller@test.com");
+		var ticketing = createPurchaseConcurrencyTest.createTicketing(seller, ticketStock);
 
 		int threadNums = 20;
 		var buyers = createPurchaseConcurrencyTest.createBuyers(threadNums);
 
 		createPurchaseConcurrencyTest.makeConcurrency(threadNums, buyers, ticketing,
 			(email) -> createPurchaseOLockUseCase.createPurchase(
-				CreatePurchasePLockCommandDto.builder()
+				CreatePurchaseOLockCommandDto.builder()
 					.ticketingId(ticketing.getId())
 					.memberEmail(email)
 					.count(1)
+					.backoff(300L)
+					.maxAttempts(100)
 					.build()));
 
 		//then
@@ -72,7 +75,10 @@ public class CreatePurchaseOLockUseCaseTest {
 			var allMembers = memberRepository.findAll();
 
 			//assert all ticket owners are unique
-			var ticketOwnerIdList = tickets
+			var purchasedTickets = ticketRepository.findAllByPurchaseIsNotNull();
+			assertThat(purchasedTickets.size()).isEqualTo(ticketStock);
+
+			var ticketOwnerIdList = purchasedTickets
 				.stream()
 				.map(ticket -> ticket.getPurchase().getMember().getId()).toList();
 
@@ -84,7 +90,7 @@ public class CreatePurchaseOLockUseCaseTest {
 				.filter(member -> member.getPurchases().size() == 1)
 				.toList();
 
-			assertThat(ticketingSuccessMembers.size()).isEqualTo(10);
+			assertThat(ticketingSuccessMembers.size()).isEqualTo(ticketStock);
 			return null;
 		});
 	}

@@ -12,6 +12,8 @@ services:
       -e TICKETS=${TICKETS}
       -e ITERATION=${ITERATION}
       -e LOCKTYPE=${LOCKTYPE}
+      -e BACKOFF=${BACKOFF}
+      -e RETRY=${RETRY}
       /scripts/stress.js
     extra_hosts:
       - "host.docker.internal:host-gateway"

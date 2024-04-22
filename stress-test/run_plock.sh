@@ -2,14 +2,13 @@
 # ${1} : VSR
 # ${2} : TICKETS
 # ${3} : ITERATION
-echo ${1} ${2} ${3}
 
 echo "Run with VSR:${1} TICKETS:${2} ITERATION:${3}"
 
 VSR=${1}
 TICKETS=${2}
 ITERATION=${3}
-LOCKTYPE="dlock"
+LOCKTYPE="p-lock"
 
 export VSR
 export TICKETS

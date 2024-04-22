@@ -1,3 +1,4 @@
+#!/bin/bash
 
 declare -a vsrs=(30 60)
 declare -a tickets=(30 60)

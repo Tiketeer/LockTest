@@ -16,5 +16,5 @@ export TICKETS
 export ITERATION
 export LOCKTYPE
 
-docker-compose -f docker-compose.stress-k6-only.yml up
+docker compose -f docker-compose.stress-k6-only.yml up
 

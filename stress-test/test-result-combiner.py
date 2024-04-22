@@ -33,6 +33,9 @@ def makeResult(p: Path):
         if x.name == RESULT_FILE_NAME:
             continue
 
+        if x.name.split('.')[0].split('_')[-1] != sys.argv[1]:
+            continue
+
         fileName = getNameWithoutIteration(x.name)
 
         if fileName not in durationDict:
@@ -75,6 +78,6 @@ if __name__ == '__main__':
 
     result = makeResult(p)
     
-    path = '/'.join(['./result', sys.argv[1], 'result.csv'])
+    path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
     p = Path(path)
     writeResultFile(p, result)

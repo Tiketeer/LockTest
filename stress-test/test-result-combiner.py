@@ -22,6 +22,12 @@ def getNameWithoutIteration(fileName: str):
 
     return '_'.join(name.split('_')[:-1])
 
+def validateFileName(fileName: str):
+    nameList = fileName.split('_')
+    if len(nameList) != 14:
+        return False
+    return True
+
 def makeResult(p: Path):
     durationDict = dict()
     countDict = dict()
@@ -33,7 +39,7 @@ def makeResult(p: Path):
         if x.name == RESULT_FILE_NAME:
             continue
 
-        if x.name.split('.')[0].split('_')[-1] != sys.argv[1]:
+        if not validateFileName(x.name):
             continue
 
         fileName = getNameWithoutIteration(x.name)

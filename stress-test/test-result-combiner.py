@@ -33,6 +33,9 @@ def makeResult(p: Path):
         if x.name == RESULT_FILE_NAME:
             continue
 
+        if x.name.split('.')[0].split('_')[-1] != sys.argv[1]:
+            continue
+
         fileName = getNameWithoutIteration(x.name)
 
         if fileName not in durationDict:
@@ -40,10 +43,10 @@ def makeResult(p: Path):
             countDict[fileName] = 0
         
         with x.open('r', newline='') as f:
-            df = pd.read_csv(f)
+            df = pd.read_json(f)
 
             # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
-            durationDict[fileName] += df[df['metric_name'] == TARGET]['metric_value'].values[0]
+            durationDict[fileName] += df['metrics']['http_req_duration']['values']['avg']
             countDict[fileName] += 1
 
     for key in durationDict:
@@ -68,12 +71,13 @@ if __name__ == '__main__':
 
     assert len(sys.argv) > 1, 'iteration을 지정할 인자가 필요합니다.'
 
-    path = '/'.join(['./result', sys.argv[1]])
+    # path = '/'.join(['./result', sys.argv[1]])
+    path = './output'
     validateDir(path)
     p = Path(path)
 
     result = makeResult(p)
     
-    path = '/'.join(['./result', sys.argv[1], 'result.csv'])
+    path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
     p = Path(path)
     writeResultFile(p, result)

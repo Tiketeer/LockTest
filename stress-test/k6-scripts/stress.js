@@ -11,7 +11,7 @@ const setupVar = {
     waitTime: __ENV.WAITTIME || 0,
     leaseTime: __ENV.LEASETIME || 0,
     iteration: __ENV.ITERATION || 1,
-    lockType: __ENV.LOCKTYPE || 'plock',
+    lockType: __ENV.LOCKTYPE || 'p-lock',
     ticketPrice: 1000,
     setupTimeout: "120s",
 };
@@ -124,25 +124,49 @@ function createTicketing(ticketingMetadata) {
     return response.json("data")["ticketingId"];
 }
 
-function purchase(ticketingId, count, buyerEmail) {
+function purchase(ticketingId, count, buyerEmail, lockType) {
+
+    let postBody = commonPostBody(ticketingId, count, buyerEmail);
+    switch (lockType) {
+        case 'o-lock' :
+            Object.assign(postBody, oLockPostBody());
+            break;
+        case 'p-lock':
+            break;
+    }
 
     const response = http.post(
-        domain + "/api/purchases/p-lock",
-        JSON.stringify({
-            ticketingId,
-            count,
-            email: buyerEmail
-        }),
+        domain + `/api/purchases/${lockType}`,
+        JSON.stringify(postBody),
         {
             headers: commonHeader,
         }
     );
 
-
     check(response, {
         "status check after create purchase": (r) => r.status === 201,
     });
 }
+
+function commonPostBody(ticketingId, count, buyerEmail) {
+    return {
+        ticketingId,
+        count,
+        email: buyerEmail
+    }
+}
+
+function oLockPostBody() {
+    return {
+        maxAttempts: setupVar.retry,
+        backoff: setupVar.backoff
+    }
+}
+
+function pLockPostBody() {
+    return {}
+}
+
 
 function wrapWithTimeLogging(tag, callback) {
     const start = new Date();

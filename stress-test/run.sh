@@ -11,7 +11,8 @@ fi
 for vsr in "${vsrs[@]}"; do
   for ticket in "${tickets[@]}"; do
     for ((i = 1; i <= $1; i++)); do
-      sh ./run_plock.sh ${vsr} ${ticket} ${i}
+      # sh ./run_plock.sh ${vsr} ${ticket} ${i}
+      sh ./run_olock.sh ${vsr} ${ticket} ${i}
       sleep 1
       sh ./cleanup.sh
     done

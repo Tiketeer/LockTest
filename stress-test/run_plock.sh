@@ -17,3 +17,5 @@ export LOCKTYPE
 
 docker compose -f docker-compose.stress-k6-only.yml up
 
+sleep 1
+sh ./cleanup.sh

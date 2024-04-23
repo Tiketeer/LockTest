@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Endpoint and resource
-url="localhost:4000/api/stress-test"
+url="172.17.48.1:4000/api/stress-test"
 
 # Send DELETE request
 response=$(curl -s -X DELETE "$url" -w "%{http_code}")

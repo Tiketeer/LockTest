@@ -1,7 +1,7 @@
 #!/bin/bash
 
-declare -a vsrs=(30 60)
-declare -a tickets=(30 60)
+declare -a vsrs=(50 100 200)
+declare -a tickets=(10 20 30)
 
 if [[ -z "$1" ]] || ! [[ "$1" =~ ^[0-9]+$ ]]; then
     echo "Usage: $0 <number of iterations>"
@@ -11,8 +11,12 @@ fi
 for vsr in "${vsrs[@]}"; do
   for ticket in "${tickets[@]}"; do
     for ((i = 1; i <= $1; i++)); do
-      # sh ./run_plock.sh ${vsr} ${ticket} ${i}
-      sh ./run_olock.sh ${vsr} ${ticket} ${i}
+      ./run_plock.sh ${vsr} ${ticket} ${i}
+      sleep 3
+     ./run_olock.sh ${vsr} ${ticket} ${i}
+      sleep 3
+      ./run_dlock.sh ${vsr} ${ticket} ${i}
+      sleep 3
     done
   done
 done

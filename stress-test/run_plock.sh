@@ -3,7 +3,7 @@
 # ${2} : TICKETS
 # ${3} : ITERATION
 
-echo "Run with VSR:${1} TICKETS:${2} ITERATION:${3}"
+echo "Run PLOCK with VSR:${1} TICKETS:${2} ITERATION:${3}"
 
 VSR=${1}
 TICKETS=${2}
@@ -17,5 +17,5 @@ export LOCKTYPE
 
 docker compose -f docker-compose.stress-k6-only.yml up
 
-sleep 1
+sleep 3
 sh ./cleanup.sh

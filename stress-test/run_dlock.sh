@@ -5,13 +5,13 @@
 # ${4} : WAITTIME
 # ${5} : LEASETIME
 
-declare -a waittimes=(100 300)
-declare -a leasetimes=(50 100)
+declare -a waittimes=(100 200 300)
+declare -a leasetimes=(50 100 200)
 
 for waittime in "${waittimes[@]}"; do
   for leasetime in "${leasetimes[@]}"; do
 
-    echo "Run with VSR:${1} TICKETS:${2} ITERATION:${3} WAITTIME:${waittime} LEASETIME: ${leasetime}"
+    echo "Run DLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} WAITTIME:${waittime} LEASETIME: ${leasetime}"
 
     VSR=${1}
     TICKETS=${2}
@@ -29,7 +29,7 @@ for waittime in "${waittimes[@]}"; do
 
     docker compose -f docker-compose.stress-k6-only.yml up
 
-    sleep 1
+    sleep 3
     sh ./cleanup.sh
   done
 done

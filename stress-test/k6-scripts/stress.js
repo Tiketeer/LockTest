@@ -90,7 +90,7 @@ export default function ({buyerEmailList, ticketingId}) {
 
 
     // TODO: 락 방법론 마다 분리된 EP 잘 찔러보기
-    purchase(ticketingId, 1, email);
+    purchase(ticketingId, 1, email, setupVar.lockType);
 }
 
 function createUsers(users) {
@@ -131,6 +131,9 @@ function purchase(ticketingId, count, buyerEmail, lockType) {
         case 'o-lock' :
             Object.assign(postBody, oLockPostBody());
             break;
+        case 'd-lock' :
+            Object.assign(postBody, dLockPostBody());
+            break;
         case 'p-lock':
             break;
     }
@@ -160,6 +163,13 @@ function oLockPostBody() {
     return {
         maxAttempts: setupVar.retry,
         backoff: setupVar.backoff
+    }
+}
+
+function dLockPostBody() {
+    return {
+        waitTime: setupVar.waitTime,
+        leaseTime: setupVar.leaseTime
     }
 }
 

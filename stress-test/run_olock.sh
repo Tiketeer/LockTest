@@ -5,20 +5,35 @@
 # ${4} : BACKOFF
 # ${5} : RETRY
 
-echo "Run with VSR:${1} TICKETS:${2} ITERATION:${3} BACKOFF:${4} RETRY: ${5}"
+declare -a backoffs=(100 200 300)
+declare -a retries=(30 60 90)
 
-VSR=${1}
-TICKETS=${2}
-ITERATION=${3}
-LOCKTYPE="o-lock"
-BACKOFF=${4}
-RETRY=${5}
 
-export VSR
-export TICKETS
-export ITERATION
-export LOCKTYPE
-export BACKOFF
-export RETRY
+for backoff in "${backoffs[@]}"; do
+  for retry in "${retries[@]}"; do
 
-docker compose -f docker-compose.stress-k6-only.yml up
+    echo "Run OLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} BACKOFF:${backoff} RETRY: ${retry}"
+
+    VSR=${1}
+    TICKETS=${2}
+    ITERATION=${3}
+    LOCKTYPE="o-lock"
+    BACKOFF=${backoff}
+    RETRY=${retry}
+
+    export VSR
+    export TICKETS
+    export ITERATION
+    export LOCKTYPE
+    export BACKOFF
+    export RETRY
+
+    docker compose -f docker-compose.stress-k6-only.yml up
+
+    sleep 3
+    sh ./cleanup.sh
+  done
+done
+
+
+

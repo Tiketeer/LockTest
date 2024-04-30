@@ -70,7 +70,7 @@ def writeResultFile(p: Path, durationResult: dict, failResult: dict):
         columns = ['lock', 'vus', 'tickets', 'minBackoff', 'maxBackoff', 'retry', 'waitTime', 'leaseTime', 'duration', 'passes', 'fails']
         df = pd.DataFrame(columns=columns)
 
-        for i, key in enumerate(result):
+        for i, key in enumerate(durationResult):
             lock, vus, vusValue, tickets, ticketsValue, minBackoff, minBackoffValue, maxBackoff, maxBackoffValue, retry, retryValue, waitTime, waitTimeValue, leaseTime, leaseTimeValue = key.split('_')
 
             se = pd.Series([lock, vusValue, ticketsValue, minBackoffValue, maxBackoffValue, retryValue, waitTimeValue, leaseTimeValue, durationResult[key], failResult[key][0], failResult[key][1]], index=df.columns)

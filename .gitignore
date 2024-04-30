@@ -42,3 +42,7 @@ src/main/resources/application*
 
 ## Database ##
 /db/
+
+## Stree test ##
+/stress-test/output/*
+/stress-test/result/*

@@ -48,44 +48,37 @@ public class CreatePurchaseOLockUseCase {
 		this.purchaseCrudService = purchaseCrudService;
 	}
 
-	@Transactional
 	public CreatePurchaseResultDto createPurchase(CreatePurchaseOLockCommandDto command) {
 		var ticketingId = command.getTicketingId();
+		var memberEmail = command.getMemberEmail();
 		var count = command.getCount();
 		var minBackoff = command.getMinBackoff();
 		var maxBackoff = command.getMaxBackoff();
 		var maxAttempts = command.getMaxAttempts();
 
-		var member = memberCrudService.findByEmail(command.getMemberEmail());
-
-		var ticketing = ticketingService.findById(ticketingId);
-
-		memberPointService.subtractPoint(member.getId(), ticketing.getPrice() * count);
-
-		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
-
 		UniformRandomBackOffPolicy backoffPolicy = new UniformRandomBackOffPolicy();
 		backoffPolicy.setMinBackOffPeriod(minBackoff);
 		backoffPolicy.setMaxBackOffPeriod(maxBackoff);
 
-		RetryTemplate.builder()
+		return RetryTemplate.builder()
 			.maxAttempts(maxAttempts)
 			.customBackoff(backoffPolicy)
 			.retryOn(OptimisticLockingFailureException.class)
 			.build()
-			.execute(context -> {
-				assignPurchaseToTicket(ticketingId, newPurchase.getId(), count);
-				return null;
-			});
-
-		return CreatePurchaseResultDto.builder()
-			.purchaseId(newPurchase.getId())
-			.createdAt(newPurchase.getCreatedAt())
-			.build();
+			.execute(context -> executeTicketPurchasse(ticketingId, memberEmail, count));
 	}
 
-	private void assignPurchaseToTicket(UUID ticketingId, UUID purchaseId, int ticketCount) {
-		var purchase = purchaseCrudService.findById(purchaseId);
+	@Transactional
+	private CreatePurchaseResultDto executeTicketPurchasse(UUID ticketingId, String memberEmail, int ticketCount) {
+		var member = memberCrudService.findByEmail(memberEmail);
+
+		var ticketing = ticketingService.findById(ticketingId);
+
+		memberPointService.subtractPoint(member.getId(), ticketing.getPrice() * ticketCount);
+
+		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
+
+		var purchase = purchaseCrudService.findById(newPurchase.getId());
 		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderByIdWithOptimisticLock(
 			ticketingId, Limit.of(ticketCount));
 
@@ -97,5 +90,10 @@ public class CreatePurchaseOLockUseCase {
 			ticket.setPurchase(purchase);
 		});
 		ticketRepository.flush();
+
+		return CreatePurchaseResultDto.builder()
+			.purchaseId(newPurchase.getId())
+			.createdAt(newPurchase.getCreatedAt())
+			.build();
 	}
 }

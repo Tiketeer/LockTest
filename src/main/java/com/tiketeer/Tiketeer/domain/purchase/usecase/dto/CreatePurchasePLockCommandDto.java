@@ -9,20 +9,11 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class CreatePurchasePLockCommandDto {
-	private final String memberEmail;
-	private final UUID ticketingId;
-	private final Integer count;
-	private LocalDateTime commandCreatedAt = LocalDateTime.now();
+public class CreatePurchasePLockCommandDto extends CreatePurchaseCommandDto {
 
 	@Builder
 	public CreatePurchasePLockCommandDto(String memberEmail, UUID ticketingId, Integer count,
 		LocalDateTime commandCreatedAt) {
-		this.memberEmail = memberEmail;
-		this.ticketingId = ticketingId;
-		this.count = count;
-		if (commandCreatedAt != null) {
-			this.commandCreatedAt = commandCreatedAt;
-		}
+		super(memberEmail, ticketingId, count, commandCreatedAt);
 	}
 }

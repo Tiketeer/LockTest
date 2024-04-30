@@ -4,6 +4,7 @@ import pandas as pd
 
 TARGET = 'http_req_duration'
 RESULT_FILE_NAME = 'result.csv'
+SUPPORTED_EXTENSION = set(['json', 'csv'])
 
 def init():
     p = Path('./result')
@@ -26,6 +27,10 @@ def validateFileName(fileName: str):
     nameList = fileName.split('_')
     if len(nameList) != 16:
         return False
+    
+    if fileName.split('.')[-1] not in SUPPORTED_EXTENSION:
+        return False
+
     return True
 
 def makeResult(p: Path):
@@ -51,7 +56,7 @@ def makeResult(p: Path):
             countDict[fileName] = 0
         
         with x.open('r', newline='') as f:
-            df = pd.read_json(f, encoding='cp949')
+            df = pd.read_json(f)
 
             # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
             durationDict[fileName] += df['metrics']['http_req_duration']['values']['avg']

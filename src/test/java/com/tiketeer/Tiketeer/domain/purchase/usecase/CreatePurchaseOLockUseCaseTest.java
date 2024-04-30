@@ -64,7 +64,8 @@ public class CreatePurchaseOLockUseCaseTest {
 					.ticketingId(ticketing.getId())
 					.memberEmail(email)
 					.count(1)
-					.backoff(300L)
+					.minBackoff(0L)
+					.maxBackoff(300L)
 					.maxAttempts(100)
 					.build()));
 

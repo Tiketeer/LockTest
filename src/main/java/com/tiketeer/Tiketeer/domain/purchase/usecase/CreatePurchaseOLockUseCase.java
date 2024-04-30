@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Limit;
+import org.springframework.retry.backoff.UniformRandomBackOffPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,8 @@ public class CreatePurchaseOLockUseCase {
 	public CreatePurchaseResultDto createPurchase(CreatePurchaseOLockCommandDto command) {
 		var ticketingId = command.getTicketingId();
 		var count = command.getCount();
-		var backoff = command.getBackoff();
+		var minBackoff = command.getMinBackoff();
+		var maxBackoff = command.getMaxBackoff();
 		var maxAttempts = command.getMaxAttempts();
 
 		var member = memberCrudService.findByEmail(command.getMemberEmail());
@@ -62,9 +64,13 @@ public class CreatePurchaseOLockUseCase {
 
 		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
 
+		UniformRandomBackOffPolicy backoffPolicy = new UniformRandomBackOffPolicy();
+		backoffPolicy.setMinBackOffPeriod(minBackoff);
+		backoffPolicy.setMaxBackOffPeriod(maxBackoff);
+
 		RetryTemplate.builder()
 			.maxAttempts(maxAttempts)
-			.fixedBackoff(backoff)
+			.customBackoff(backoffPolicy)
 			.retryOn(OptimisticLockingFailureException.class)
 			.build()
 			.execute(context -> {

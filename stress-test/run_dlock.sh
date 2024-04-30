@@ -5,8 +5,8 @@
 # ${4} : WAITTIME
 # ${5} : LEASETIME
 
-declare -a waittimes=(100 200 300)
-declare -a leasetimes=(50 100 200)
+declare -a waittimes=(300 500 700)
+declare -a leasetimes=(500 1000 1500)
 
 for waittime in "${waittimes[@]}"; do
   for leasetime in "${leasetimes[@]}"; do

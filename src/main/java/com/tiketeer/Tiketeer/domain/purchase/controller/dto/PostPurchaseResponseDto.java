@@ -23,7 +23,7 @@ public class PostPurchaseResponseDto {
 		this.createdAt = createdAt;
 	}
 
-	public static PostPurchaseResponseDto converFromDto(CreatePurchaseResultDto result) {
+	public static PostPurchaseResponseDto convertFromDto(CreatePurchaseResultDto result) {
 		return PostPurchaseResponseDto.builder()
 			.purchaseId((result.getPurchaseId()))
 			.createdAt(result.getCreatedAt())

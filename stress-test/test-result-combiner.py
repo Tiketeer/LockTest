@@ -60,8 +60,8 @@ def makeResult(p: Path):
 
             # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
             durationDict[fileName] += df['metrics']['http_req_duration']['values']['avg']
-            failCountDict[fileName][0] += df['metrics']['http_req_failed']['values']['passes']
-            failCountDict[fileName][1] += df['metrics']['http_req_failed']['values']['fails']
+            failCountDict[fileName][0] += df['root_group']['checks'][0]['passes']
+            failCountDict[fileName][1] += df['root_group']['checks'][0]['fails']
             countDict[fileName] += 1
 
     for key in durationDict:

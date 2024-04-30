@@ -6,7 +6,8 @@ import {check} from "k6";
 const setupVar = {
     userNum: __ENV.VSR || 10, // 구매자 수 (vUser),
     ticketStock: __ENV.TICKETS || 50, // 티켓 재고
-    backoff: __ENV.BACKOFF || 0,
+    minBackoff: __ENV.MINBACKOFF || 0,
+    maxBackoff: __ENV.MAXBACKOFF || 0,
     retry: __ENV.RETRY || 0,
     waitTime: __ENV.WAITTIME || 0,
     leaseTime: __ENV.LEASETIME || 0,
@@ -162,7 +163,8 @@ function commonPostBody(ticketingId, count, buyerEmail) {
 function oLockPostBody() {
     return {
         maxAttempts: setupVar.retry,
-        backoff: setupVar.backoff
+        minBackoff: setupVar.minBackoff,
+        maxBackoff: setupVar.maxBackoff
     }
 }
 
@@ -192,7 +194,8 @@ export function handleSummary(data) {
         setupVar.lockType,
         `vus_${setupVar.userNum}`,
         `tickets_${setupVar.ticketStock}`,
-        `backoff_${setupVar.backoff}`,
+        `minBackoff_${setupVar.minBackoff}`,
+        `maxBackoff_${setupVar.maxBackoff}`,
         `retry_${setupVar.retry}`,
         `waitTime_${setupVar.waitTime}`,
         `leaseTime_${setupVar.leaseTime}`,

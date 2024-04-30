@@ -4,6 +4,7 @@ import pandas as pd
 
 TARGET = 'http_req_duration'
 RESULT_FILE_NAME = 'result.csv'
+SUPPORTED_EXTENSION = set(['json', 'csv'])
 
 def init():
     p = Path('./result')
@@ -26,6 +27,10 @@ def validateFileName(fileName: str):
     nameList = fileName.split('_')
     if len(nameList) != 16:
         return False
+    
+    if fileName.split('.')[-1] not in SUPPORTED_EXTENSION:
+        return False
+
     return True
 
 def makeResult(p: Path):
@@ -89,7 +94,14 @@ if __name__ == '__main__':
     p = Path(path)
 
     result, failResult = makeResult(p)
+<<<<<<< HEAD
 
     path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
     p = Path(path)
     writeResultFile(p, result, failResult)
+=======
+    
+    path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
+    p = Path(path)
+    writeResultFile(p, result, failResult)
+>>>>>>> develop

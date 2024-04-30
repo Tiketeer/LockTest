@@ -64,8 +64,6 @@ def makeResult(p: Path):
             failCountDict[fileName][1] += df['root_group']['checks'][0]['fails']
             countDict[fileName] += 1
     
-    tt = 'd-lock_vus_10_tickets_10_minBackoff_0_maxBackoff_0_retry_0_waitTime_300_leaseTime_500'
-
     for key in durationDict:
         durationDict[key] = durationDict[key] / countDict[key]
         failCountDict[key][0] = failCountDict[key][0] / countDict[key]

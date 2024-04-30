@@ -39,7 +39,7 @@ public class CreatePurchaseOLockUseCase {
 			.retryOn(OptimisticLockingFailureException.class)
 			.build()
 			.execute(context -> innerUseCase.createPurchase(command,
-				ticketRepository::findByTicketingIdAndPurchaseIsNullOrderByIdWithOptimisticLock));
+				ticketRepository::findByTicketingIdAndPurchaseIsNullOrderByRandWithOptimisticLock));
 	}
 
 }

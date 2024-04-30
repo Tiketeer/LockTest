@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
@@ -30,6 +31,11 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 	@Lock(LockModeType.OPTIMISTIC)
 	@Query("SELECT t FROM Ticket t WHERE t.ticketing.id = :ticketingId AND t.purchase IS NULL ORDER BY t.id")
 	List<Ticket> findByTicketingIdAndPurchaseIsNullOrderByIdWithOptimisticLock(UUID ticketingId, Limit limit);
+
+	@Transactional(readOnly = true)
+	@Lock(LockModeType.OPTIMISTIC)
+	@Query("SELECT t FROM Ticket t WHERE t.ticketing.id = :ticketingId AND t.purchase IS NULL ORDER BY FUNCTION('RAND')")
+	List<Ticket> findByTicketingIdAndPurchaseIsNullOrderByRandWithOptimisticLock(UUID ticketingId, Limit limit);
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT t FROM Ticket t WHERE t.ticketing.id = :ticketingId AND t.purchase IS NULL ORDER BY t.id")

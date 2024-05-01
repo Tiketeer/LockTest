@@ -94,14 +94,6 @@ if __name__ == '__main__':
     p = Path(path)
 
     result, failResult = makeResult(p)
-<<<<<<< HEAD
-
     path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
     p = Path(path)
     writeResultFile(p, result, failResult)
-=======
-    
-    path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
-    p = Path(path)
-    writeResultFile(p, result, failResult)
->>>>>>> develop

@@ -60,14 +60,14 @@ def makeResult(p: Path):
 
             # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
             durationDict[fileName] += df['metrics']['http_req_duration']['values']['avg']
-            failCountDict[fileName][0] += df['metrics']['http_req_failed']['values']['passes']
-            failCountDict[fileName][1] += df['metrics']['http_req_failed']['values']['fails']
+            failCountDict[fileName][0] += df['root_group']['checks'][0]['passes']
+            failCountDict[fileName][1] += df['root_group']['checks'][0]['fails']
             countDict[fileName] += 1
-
+    
     for key in durationDict:
         durationDict[key] = durationDict[key] / countDict[key]
-        failCountDict[fileName][0] = failCountDict[fileName][0] / countDict[key]
-        failCountDict[fileName][1] = failCountDict[fileName][1] / countDict[key]
+        failCountDict[key][0] = failCountDict[key][0] / countDict[key]
+        failCountDict[key][1] = failCountDict[key][1] / countDict[key]
     return durationDict, failCountDict
     
 def writeResultFile(p: Path, durationResult: dict, failResult: dict):

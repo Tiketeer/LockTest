@@ -22,18 +22,23 @@ public class PostPurchaseOLockRequestDto {
 	private final Integer count;
 	@NotBlank
 	private final String email;
+
 	@NotNull
-	private final Long backoff;
+	private final Long minBackoff;
+	@NotNull
+	private final Long maxBackoff;
 	@NotNull
 	private final Integer maxAttempts;
 
 	@Builder
 	public PostPurchaseOLockRequestDto(@NotNull UUID ticketingId,
-		@NotNull Integer count, @NotBlank String email, @NotNull Long backoff, @NotNull Integer maxAttempts) {
+		@NotNull Integer count, @NotBlank String email, @NotNull Long minBackoff, @NotNull Long maxBackoff,
+		@NotNull Integer maxAttempts) {
 		this.ticketingId = ticketingId;
 		this.count = count;
 		this.email = email;
-		this.backoff = backoff;
+		this.minBackoff = minBackoff;
+		this.maxBackoff = maxBackoff;
 		this.maxAttempts = maxAttempts;
 	}
 
@@ -42,7 +47,8 @@ public class PostPurchaseOLockRequestDto {
 			.memberEmail(email)
 			.ticketingId(ticketingId)
 			.count(count)
-			.backoff(backoff)
+			.minBackoff(minBackoff)
+			.maxBackoff(maxBackoff)
 			.maxAttempts(maxAttempts)
 			.build();
 	}

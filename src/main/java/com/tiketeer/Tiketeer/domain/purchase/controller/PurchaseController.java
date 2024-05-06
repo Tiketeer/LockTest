@@ -39,7 +39,7 @@ public class PurchaseController {
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchaseWithPLock(
 		@Valid @RequestBody PostPurchasePLockRequestDto request) {
 		var result = createPurchasePLockUseCase.createPurchase(request.convertToDto());
-		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
+		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
@@ -47,7 +47,7 @@ public class PurchaseController {
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchaseWithDLock(
 		@Valid @RequestBody PostPurchaseDLockRequestDto request) {
 		var result = createPurchaseDLockUseCase.createPurchase(request.convertToDto());
-		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
+		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
@@ -55,7 +55,7 @@ public class PurchaseController {
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchaseWithOLock(
 		@Valid @RequestBody PostPurchaseOLockRequestDto request) {
 		var result = createPurchaseOLockUseCase.createPurchase(request.convertToDto());
-		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
+		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 }

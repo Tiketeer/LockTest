@@ -41,7 +41,7 @@ def makeResult(p: Path):
     for x in p.iterdir():
         if not x.is_file():
             continue
-        
+
         if x.name == RESULT_FILE_NAME:
             continue
 
@@ -54,9 +54,9 @@ def makeResult(p: Path):
             durationDict[fileName] = 0
             failCountDict[fileName] = [0, 0]
             countDict[fileName] = 0
-        
+
         with x.open('r', newline='') as f:
-            df = pd.read_json(f)
+            df = pd.read_json(f, encoding='utf-8')
 
             # metric_name,timestamp,metric_value,check,error,error_code,group,method,name,proto,scenario,status,subproto,tls_version,url,extra_tags
             durationDict[fileName] += df['metrics']['http_req_duration']['values']['avg']
@@ -69,7 +69,7 @@ def makeResult(p: Path):
         failCountDict[key][0] = failCountDict[key][0] / countDict[key]
         failCountDict[key][1] = failCountDict[key][1] / countDict[key]
     return durationDict, failCountDict
-    
+
 def writeResultFile(p: Path, durationResult: dict, failResult: dict):
     with p.open('w', newline='') as f:
         columns = ['lock', 'vus', 'tickets', 'minBackoff', 'maxBackoff', 'retry', 'waitTime', 'leaseTime', 'duration', 'passes', 'fails']
@@ -94,7 +94,6 @@ if __name__ == '__main__':
     p = Path(path)
 
     result, failResult = makeResult(p)
-    
     path = '/'.join(['./result', 'result_' + sys.argv[1] + '.csv'])
     p = Path(path)
     writeResultFile(p, result, failResult)

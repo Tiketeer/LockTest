@@ -146,7 +146,8 @@ public class PurchaseControllerTest {
 			.ticketingId(ticketing.getId())
 			.email(buyerEmail)
 			.count(buyCnt)
-			.backoff(100L)
+			.minBackoff(0L)
+			.maxBackoff(100L)
 			.maxAttempts(100)
 			.build();
 

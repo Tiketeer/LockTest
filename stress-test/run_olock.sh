@@ -5,20 +5,22 @@
 # ${4} : BACKOFF
 # ${5} : RETRY
 
-declare -a backoffs=(100 200 300)
+minBackoff=100
+declare -a maxBackoffs=(300 400 500)
 declare -a retries=(30 60 90)
 
 
-for backoff in "${backoffs[@]}"; do
+for maxBackoff in "${maxBackoffs[@]}"; do
   for retry in "${retries[@]}"; do
 
-    echo "Run OLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} BACKOFF:${backoff} RETRY: ${retry}"
+    echo "Run OLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} BACKOFF:${maxBackoff} RETRY: ${retry}"
 
     VSR=${1}
     TICKETS=${2}
     ITERATION=${3}
     LOCKTYPE="o-lock"
-    BACKOFF=${backoff}
+    MAXBACKOFF=${maxBackoff}
+    MINBACKOFF=${minBackoff}
     RETRY=${retry}
 
     export VSR

@@ -4,14 +4,12 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
 @Profile("!test")
-@ConditionalOnProperty(value = "custom.policy.ticket-concurrency", havingValue = "d-lock")
 public class RedissonConfig {
 
 	private static final String REDISSON_HOST_PREFIX = "redis://";

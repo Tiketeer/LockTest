@@ -6,14 +6,14 @@
 # ${5} : RETRY
 
 minBackoff=100
-declare -a maxBackoffs=(300 400 500)
+declare -a maxBackoffs=(200 300 400)
 declare -a retries=(30 60 90)
 
 
 for maxBackoff in "${maxBackoffs[@]}"; do
   for retry in "${retries[@]}"; do
 
-    echo "Run OLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} BACKOFF:${maxBackoff} RETRY: ${retry}"
+    echo "Run OLOCK with VSR:${1} TICKETS:${2} ITERATION:${3} MINBACKOFF:${minBackoff} MAXBACKOFF:${maxBackoff} RETRY: ${retry}"
 
     VSR=${1}
     TICKETS=${2}
@@ -27,7 +27,8 @@ for maxBackoff in "${maxBackoffs[@]}"; do
     export TICKETS
     export ITERATION
     export LOCKTYPE
-    export BACKOFF
+    export MINBACKOFF
+    export MAXBACKOFF
     export RETRY
 
     docker compose -f docker-compose.stress-k6-only.yml up

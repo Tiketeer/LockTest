@@ -12,7 +12,8 @@ services:
       -e TICKETS=${TICKETS}
       -e ITERATION=${ITERATION}
       -e LOCKTYPE=${LOCKTYPE}
-      -e BACKOFF=${BACKOFF}
+      -e MINBACKOFF=${MINBACKOFF}
+      -e MAXBACKOFF=${MAXBACKOFF}
       -e RETRY=${RETRY}
       -e WAITTIME=${WAITTIME}
       -e LEASETIME=${LEASETIME}

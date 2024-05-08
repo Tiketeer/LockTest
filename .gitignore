@@ -47,3 +47,4 @@ src/main/resources/application*
 /stress-test/output/*
 /stress-test/result/*
 /.ipynb_checkpoints
+/stress-test/.ipynb_checkpoints
